@@ -10,7 +10,7 @@ class Constants:
     METHOD_PARAMETERS_FIELD_NAME = "methodParameters"
     TYPE_FIELD_NAME = "type"
     EXCEPTION_FIELD_NAME = "exception"
-    MONITORING_PATH_FIELD_NAME = "monitoring_path"
+    MONITORING_PATH_FIELD_NAME = "monitoringPath"
     EXTRA_RESULTS = "extra_results"
     MONITORING_NICKNAME_FIELD_NAME = "nickname"
 

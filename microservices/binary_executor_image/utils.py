@@ -3,13 +3,13 @@ from datetime import datetime
 import pytz
 from pymongo import MongoClient
 from inspect import signature, getmembers
-from typing import Tuple, Union
+from typing import Tuple
 import importlib
 from constants import Constants
 import pandas as pd
 import dill
 import os
-import subprocess
+from subprocess import Popen, PIPE, STDOUT
 from tensorflow import keras
 import traceback
 
@@ -357,13 +357,12 @@ class ProcessController:
     def __init__(self) -> None:
         self.__processDict = dict()
 
-    def create_process(self, arg_list: list, process_nickname: str, monitoring_path: str) -> Tuple[
-        Union[subprocess.Popen[bytes], subprocess.Popen], str]:
+    def create_process(self, arg_list: list, process_nickname: str, monitoring_path: str) -> Tuple[Popen, str]:
         nickname = process_nickname
         if nickname in self.__processDict:
             nickname = process_nickname + datetime.strftime("%Y%m%d-%H%M%S")
 
-        process = subprocess.Popen(arg_list, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        process = Popen(arg_list, stdout=PIPE, stderr=STDOUT)
         self.__processDict[nickname] = {'process': process, 'path': monitoring_path}
 
         return process, nickname
@@ -373,7 +372,7 @@ class ProcessController:
             process = self.__processDict.pop(process_nickname)
             process.kill()
 
-    def get_process(self, process_nickname: str) -> subprocess.Popen:
+    def get_process(self, process_nickname: str) -> Popen:
         if process_nickname in self.__processDict:
             return self.__processDict.get(process_nickname)['process']
 
