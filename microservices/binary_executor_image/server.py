@@ -53,8 +53,8 @@ def create_execution() -> jsonify:
     if monitoring_path is not None:
         process_nickname, url = init_monitoring(filename, monitoring_path)
         monitoring_response = {
-            process_nickname: process_nickname,
-            url: url,
+            'process_nickname': process_nickname,
+            'url': url,
         }
 
     parent_name_service_type = data.get_type(parent_name)
@@ -184,7 +184,7 @@ def get_monitoring() -> jsonify:
 
 def init_monitoring(filename, monitoring_path) -> Tuple[str, str]:
     process, process_nickname = process_controller.create_process(
-        ['tensorboard', '--logdir', f'{monitoring_path}', '--bind_all'],
+        ['tensorboard', '--logdir', f'{monitoring_path}'],
         process_nickname=f'{filename}_monitoring', monitoring_path=monitoring_path)
     url = find_url(process)
     process_controller.add_url(process_nickname, url)
