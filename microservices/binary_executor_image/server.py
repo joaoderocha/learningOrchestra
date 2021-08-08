@@ -31,9 +31,14 @@ def create_execution() -> jsonify:
     description = request.json[Constants.DESCRIPTION_FIELD_NAME]
     class_method = request.json[Constants.METHOD_FIELD_NAME]
     method_parameters = request.json[Constants.METHOD_PARAMETERS_FIELD_NAME]
-    monitoring_path = request.json[Constants.MONITORING_PATH_FIELD_NAME]
 
-    print(f'{model_name}, {parent_name}, {filename}, {description}, {class_method}, {method_parameters}', flush=True)
+    try:
+        monitoring_path = request.json[Constants.MONITORING_PATH_FIELD_NAME]
+    except Exception:
+        pass
+
+    print(f'{model_name}, {parent_name}, {filename}, {description}, {class_method}, {method_parameters},'
+          f' {monitoring_path}', flush=True)
 
     request_errors = analyse_post_request_errors(
         request_validator,
