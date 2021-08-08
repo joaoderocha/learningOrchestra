@@ -31,7 +31,7 @@ def create_execution() -> jsonify:
     description = request.json[Constants.DESCRIPTION_FIELD_NAME]
     class_method = request.json[Constants.METHOD_FIELD_NAME]
     method_parameters = request.json[Constants.METHOD_PARAMETERS_FIELD_NAME]
-
+    monitoring_path = ''
     try:
         monitoring_path = request.json[Constants.MONITORING_PATH_FIELD_NAME]
     except Exception:
@@ -55,7 +55,7 @@ def create_execution() -> jsonify:
         return request_errors
 
     monitoring_response = None
-    if monitoring_path is not None:
+    if monitoring_path is not '':
         process_nickname, url = init_monitoring(filename, monitoring_path)
         monitoring_response = {
             'process_nickname': process_nickname,

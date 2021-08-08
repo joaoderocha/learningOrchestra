@@ -1,6 +1,7 @@
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 import pytz
+import requests
 from pymongo import MongoClient
 from inspect import signature, getmembers
 from typing import Tuple
@@ -356,6 +357,7 @@ class Data:
 class ProcessController:
     def __init__(self) -> None:
         self.__processDict = dict()
+        self.__localhost = requests.get('https://api.ipify.org').text
 
     def create_process(self, arg_list: list, process_nickname: str, monitoring_path: str) -> Tuple[Popen, str]:
         nickname = process_nickname
@@ -393,4 +395,5 @@ def find_url(proc) -> str:
         left_index = decoded_line.find('http://')
         if left_index > 0:
             right_index = decoded_line.rfind('/')
-            return decoded_line[left_index:right_index + 1]
+            url = decoded_line[left_index:right_index + 1]
+            return url[url.rfind(':') + 1:url.rfind('/')]
