@@ -382,14 +382,13 @@ class ProcessController:
         if process_nickname in self.__processDict:
             return self.__processDict.get(process_nickname)['url']
 
-    def add_url(self, process_nickname: str, url: str) -> bool:
+    def add_port(self, process_nickname: str, port: str) -> str:
         if process_nickname in self.__processDict:
-            self.__processDict.get(process_nickname)['url'] = url
-            return True
-        return False
+            self.__processDict.get(process_nickname)['url'] = f'{self.__localhost}:{port}'
+            return self.__processDict.get(process_nickname)['url']
 
 
-def find_url(proc) -> str:
+def find_port(proc) -> str:
     for line in iter(proc.stdout.readline, b''):
         decoded_line = line.decode('utf-8')
         left_index = decoded_line.find('http://')

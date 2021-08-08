@@ -1,7 +1,7 @@
 from flask import jsonify, request, Flask
 import os
 from binary_execution import Execution, Parameters
-from utils import UserRequest, Database, ObjectStorage, Data, Metadata, ProcessController, find_url
+from utils import UserRequest, Database, ObjectStorage, Data, Metadata, ProcessController, find_port
 from typing import Union, Tuple
 from constants import Constants
 
@@ -191,8 +191,8 @@ def init_monitoring(filename, monitoring_path) -> Tuple[str, str]:
     process, process_nickname = process_controller.create_process(
         ['tensorboard', '--logdir', f'{monitoring_path}'],
         process_nickname=f'{filename}_monitoring', monitoring_path=monitoring_path)
-    url = find_url(process)
-    process_controller.add_url(process_nickname, url)
+    port = find_port(process)
+    url = process_controller.add_port(process_nickname, port)
     return process_nickname, url
 
 
