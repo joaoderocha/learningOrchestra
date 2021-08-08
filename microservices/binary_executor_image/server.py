@@ -164,7 +164,7 @@ def delete_default_model(filename: str) -> jsonify:
     )
 
 
-@app.route(Constants.MONITORING_TENSORFLOW_TYPE, methods=['GET'])
+@app.route(Constants.MICROSERVICE_URI_PATH, methods=['GET'])
 def get_monitoring() -> jsonify:
     monitoring_nickname = request.json[Constants.MONITORING_NICKNAME_FIELD_NAME]
     url = process_controller.get_url(monitoring_nickname)
