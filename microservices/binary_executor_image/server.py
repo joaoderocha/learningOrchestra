@@ -189,7 +189,7 @@ def get_monitoring() -> jsonify:
 
 def init_monitoring(filename, monitoring_path) -> Tuple[str, str]:
     process, process_nickname = process_controller.create_process(
-        ['tensorboard', '--logdir', f'{monitoring_path}'],
+        ['tensorboard', '--logdir', f'{monitoring_path}', '--bind_all'],
         process_nickname=f'{filename}_monitoring', monitoring_path=monitoring_path)
     port = find_port(process)
     url = process_controller.add_port(process_nickname, port)
