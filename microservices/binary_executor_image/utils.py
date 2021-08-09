@@ -358,6 +358,7 @@ class ProcessController:
     def __init__(self) -> None:
         self.__processDict = dict()
         self.__localhost = requests.get('https://api.ipify.org').text
+        print(self.__localhost)
 
     def create_process(self, arg_list: list, process_nickname: str, monitoring_path: str) -> Tuple[Popen, str]:
         nickname = process_nickname
