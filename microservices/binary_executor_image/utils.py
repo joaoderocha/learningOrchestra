@@ -385,7 +385,7 @@ class ProcessController:
 
     def add_port(self, process_nickname: str, port: str) -> str:
         if process_nickname in self.__processDict:
-            self.__processDict.get(process_nickname)['url'] = f'{self.__localhost}:{port}'
+            self.__processDict.get(process_nickname)['url'] = f'http://{self.__localhost}:{port}'
             return self.__processDict.get(process_nickname)['url']
 
 
