@@ -1282,14 +1282,14 @@
       ]
     },
     {
-      "endpoint": "/api/learningOrchestra/v1/monitoring/tensorflow/",
+      "endpoint": "/api/learningOrchestra/v1/monitoring/tensorflow/{monitoring_nickname}",
       "method": "GET",
       "output_encoding": "no-op",
       "backend": [
         {
           "encoding": "no-op",
           "method": "GET",
-          "url_pattern": "/binaryexecutor/monitoring/tensorflow",
+          "url_pattern": "/binaryexecutor/monitoring/tensorflow/{monitoring_nickname}",
           "host": [
             "http://binaryexecutor:5008"
           ],

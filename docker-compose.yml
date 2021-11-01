@@ -25,8 +25,7 @@ x-service-database-env: &default-service-database-env
 
 services:
   databaseapi:
-    build: microservices/database_api_image
-    image: 127.0.0.1:5050/database_api
+    image: camazaqui/learningorchestra:database_api
     ports:
       - "5000:5000"
     depends_on:
@@ -89,15 +88,15 @@ services:
       - database
     deploy: *default-deploy-worker
 
-  images:
-    image: registry:2.7.1
-    ports:
-      - "5050:5000"
-    deploy: *default-deploy-manager
-    networks:
-      - database
-    volumes:
-      - "images:/var/lib/registry"
+#  images:
+#    image: registry:2.7.1
+#    ports:
+#      - "5050:5000"
+#    deploy: *default-deploy-manager
+#    networks:
+#      - database
+#    volumes:
+#      - "images:/var/lib/registry"
 
   agent:
     image: portainer/agent:linux-amd64-2.1.0-alpine
@@ -130,8 +129,7 @@ services:
           - "node.role==manager"
 
   sparkmaster:
-    build: microservices/spark_image
-    image: 127.0.0.1:5050/spark
+    image: camazaqui/learningorchestra:spark_image
     ports:
       - "4040:4040"
       - "7077:7077"
@@ -144,7 +142,7 @@ services:
       - database
 
   sparkworker:
-    image: 127.0.0.1:5050/spark
+    image: camazaqui/learningorchestra:spark_image
     entrypoint: dockerize -wait tcp://sparkmaster:7077 -timeout 240s /sbin/my_init
     ports:
       - "8081:8081"
@@ -166,8 +164,7 @@ services:
       - database
 
   projection:
-    build: microservices/projection_image
-    image: 127.0.0.1:5050/projection
+    image: camazaqui/learningorchestra:projection_image
     ports:
       - "5001:5001"
       - "41000:41000"
@@ -185,8 +182,7 @@ services:
     environment: *default-service-database-env
 
   builder:
-    build: microservices/builder_image
-    image: 127.0.0.1:5050/builder
+    image: camazaqui/learningorchestra:builder_image
     ports:
       - "5002:5002"
       - "41100:41100"
@@ -204,8 +200,7 @@ services:
     environment: *default-service-database-env
 
   datatypehandler:
-    build: microservices/data_type_handler_image
-    image: 127.0.0.1:5050/data_type_handler
+    image: camazaqui/learningorchestra:data_type_handler_image
     ports:
       - "5003:5003"
     depends_on:
@@ -217,8 +212,7 @@ services:
     environment: *default-service-database-env
 
   histogram:
-    build: microservices/histogram_image
-    image: 127.0.0.1:5050/histogram
+    image: camazaqui/learningorchestra:histogram_image
     ports:
       - "5004:5004"
     depends_on:
@@ -230,8 +224,7 @@ services:
     environment: *default-service-database-env
 
   databasexecutor:
-    build: microservices/database_executor_image
-    image: 127.0.0.1:5050/database_executor
+    image: camazaqui/learningorchestra:database_executor_image
     ports:
       - "5006:5006"
     depends_on:
@@ -261,8 +254,7 @@ services:
       - spark
 
   model:
-    build: microservices/model_image
-    image: 127.0.0.1:5050/model
+    image: camazaqui/learningorchestra:model_image
     ports:
       - "5007:5007"
     depends_on:
@@ -280,8 +272,7 @@ services:
       - "binary_executor:/binaries"
 
   binaryexecutor:
-    build: microservices/binary_executor_image
-    image: 127.0.0.1:5050/binary_executor
+    image: camazaqui/learningorchestra:binary_executor_image
     ports:
       - "5008:5008"
       - "6006-7000:6006-7000"
@@ -299,8 +290,7 @@ services:
       - "code_executor:/code_executions"
 
   codexecutor:
-    build: microservices/code_executor_image
-    image: 127.0.0.1:5050/code_executor
+    image: camazaqui/learningorchestra:code_executor_image
     ports:
       - "5009:5009"
     depends_on:
