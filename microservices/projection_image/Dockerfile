@@ -1,4 +1,4 @@
-FROM spark_task
+FROM camazaqui/learningorchestra:spark_task
 
 WORKDIR /usr/src/projection
 COPY . /usr/src/projection
