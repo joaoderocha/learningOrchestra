@@ -1,4 +1,4 @@
-FROM camazaqui/learningorchestra:spark_task
+FROM spark_task
 
 WORKDIR /usr/src/builder
 COPY . /usr/src/builder
