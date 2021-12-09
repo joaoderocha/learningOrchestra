@@ -3,7 +3,7 @@ FROM python:3.7-slim
 WORKDIR /usr/src/binary_executor
 COPY . /usr/src/binary_executor
 
-RUN apt-get -y cmake gcc g++
+RUN apt-get -y install cmake gcc g++
 
 RUN pip install -r requirements.txt
 
