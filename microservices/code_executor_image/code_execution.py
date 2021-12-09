@@ -210,7 +210,7 @@ class DistributedExecution(Execution):
                  metadata_creator: Metadata,
                  parameters_handler: Parameters,
                  function_handler: Function,
-                 address: str = "auto",
+                 address: str = "10.182.0.21:6379",
                  redis_password: str = "5241590000000000"
                  ):
         super().__init__(
@@ -222,15 +222,20 @@ class DistributedExecution(Execution):
             parameters_handler,
             function_handler
         )
-        self.ray = ray.init(address, _redis_password=redis_password)
-        self.ray_settings = RayExecutor.create_settings(timeout_s=30)
-        self.ray_executor = RayExecutor(
-            self.ray_settings,
-            use_gpu=False,
-            num_workers_per_host=1,
-            num_hosts=3,
-        )
-        self.ray_executor.start()
+        print('Construtor distributed execution')
+        try:
+
+            self.ray = ray.init(address, _redis_password=redis_password)
+            self.ray_settings = RayExecutor.create_settings(timeout_s=30)
+            self.ray_executor = RayExecutor(
+                self.ray_settings,
+                use_gpu=False,
+                num_workers_per_host=1,
+                num_hosts=3,
+            )
+            self.ray_executor.start()
+        except Exception:
+            print(Exception.__str__())
 
     def __execute_function(self, function: str,
                            parameters: dict) -> (object, str, str):

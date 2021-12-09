@@ -9,13 +9,9 @@ RUN apt-get -y install build-essential
 
 RUN apt-get -y install cmake gcc g++ curl
 
-RUN curl https://dl.google.com/dl/cloudsdk/release/google-cloud-sdk.tar.gz > /tmp/google-cloud-sdk.tar.gz
-
-RUN mkdir -p /usr/local/gcloud  && tar -C /usr/local/gcloud -xvf /tmp/google-cloud-sdk.tar.gz && /usr/local/gcloud/google-cloud-sdk/install.sh --quiet
-
-ENV PATH $PATH:/usr/local/gcloud/google-cloud-sdk/bin
-
 RUN pip install -r requirements.txt
+
+RUN HOROVOD_WITH_GLOO=1 HOROVOD_WITH_TENSORFLOW=1 pip install 'horovod[ray,tensorboard,keras]'
 
 ENV MICROSERVICE_IP "0.0.0.0"
 ENV MICROSERVICE_PORT 5009

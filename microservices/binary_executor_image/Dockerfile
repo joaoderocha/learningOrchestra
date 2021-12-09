@@ -9,6 +9,8 @@ RUN apt-get -y install cmake gcc g++
 
 RUN pip install -r requirements.txt
 
+RUN HOROVOD_WITH_GLOO=1 HOROVOD_WITH_TENSORFLOW=1 pip install 'horovod[ray,tensorboard,keras]'
+
 ENV MICROSERVICE_IP "0.0.0.0"
 ENV MICROSERVICE_PORT 5008
 ENV BINARY_VOLUME_PATH "/binaries"

@@ -38,8 +38,10 @@ def create_execution() -> jsonify:
 
     try:
         distributed = request.json[Constants.DISTRIBUTED_FIELD_NAME]
+        print('RODEI DISTRIBUIDO')
     except KeyError:
         distributed = None
+        print('NAO EH DISTRIBUIDO')
 
     print(filename, description, service_type, function_parameters, function, distributed)
 
