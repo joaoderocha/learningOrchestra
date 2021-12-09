@@ -7,7 +7,7 @@ RUN apt-get update
 
 RUN apt-get -y install build-essential
 
-RUN apt-get -y install cmake gcc g++
+RUN apt-get -y install cmake gcc g++ curl
 
 RUN curl https://dl.google.com/dl/cloudsdk/release/google-cloud-sdk.tar.gz > /tmp/google-cloud-sdk.tar.gz
 
