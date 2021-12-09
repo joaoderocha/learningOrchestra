@@ -244,6 +244,7 @@ class DistributedExecution(Execution):
         context_variables = {}
 
         try:
+            print(f'function code, parameters and context', function_code, function_parameters, context_variables)
             response = self.ray_executor.run(function_code, function_parameters, context_variables)
             print(response)
             function_message = redirected_output.getvalue()

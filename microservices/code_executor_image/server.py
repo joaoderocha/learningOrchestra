@@ -35,7 +35,11 @@ def create_execution() -> jsonify:
     service_type = request.args.get(Constants.TYPE_PARAM_NAME)
     function_parameters = request.json[Constants.FUNCTION_PARAMETERS_FIELD_NAME]
     function = request.json[Constants.FUNCTION_FIELD_NAME]
-    distributed = request.json[Constants.DISTRIBUTED_FIELD_NAME]
+
+    try:
+        distributed = request.json[Constants.DISTRIBUTED_FIELD_NAME]
+    except KeyError:
+        distributed = None
 
     print(filename, description, service_type, function_parameters, function, distributed)
 
