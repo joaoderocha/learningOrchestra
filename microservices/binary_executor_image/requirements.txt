@@ -8,3 +8,5 @@ pandas==1.2.0
 # they are used directly by user on API request.
 scikit-learn
 tensorflow
+horovod
+ray
