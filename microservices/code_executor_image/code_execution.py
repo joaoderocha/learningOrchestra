@@ -1,4 +1,8 @@
 from concurrent.futures import ThreadPoolExecutor
+
+import ray
+from horovod.ray import RayExecutor
+
 from utils import Database, Data, ObjectStorage, Metadata
 from constants import Constants
 from io import StringIO
@@ -182,7 +186,66 @@ class Execution:
         context_variables = {}
 
         try:
+
             exec(function_code, function_parameters, context_variables)
+            function_message = redirected_output.getvalue()
+            sys.stdout = old_stdout
+
+            return context_variables["response"], function_message, None
+
+        except Exception as error:
+            traceback.print_exc()
+            function_message = redirected_output.getvalue()
+            sys.stdout = old_stdout
+            function_error = repr(error)
+            return None, function_message, function_error
+
+
+class DistributedExecution(Execution):
+    def __init__(self,
+                 database_connector: Database,
+                 filename: str,
+                 service_type: str,
+                 storage: ObjectStorage,
+                 metadata_creator: Metadata,
+                 parameters_handler: Parameters,
+                 function_handler: Function,
+                 address: str = "auto",
+                 redis_password: str = "5241590000000000"
+                 ):
+        super().__init__(
+            database_connector,
+            filename,
+            service_type,
+            storage,
+            metadata_creator,
+            parameters_handler,
+            function_handler
+        )
+        self.ray = ray.init(address, _redis_password=redis_password)
+        self.ray_settings = RayExecutor.create_settings(timeout_s=30)
+        self.ray_executor = RayExecutor(
+            self.ray_settings,
+            use_gpu=False,
+            num_workers_per_host=1,
+            num_hosts=3,
+        )
+        self.ray_executor.start()
+
+    def __execute_function(self, function: str,
+                           parameters: dict) -> (object, str, str):
+        function_parameters = self.__parameters_handler.treat(parameters)
+        print(function_parameters)
+        function_code = self.__function_handler.treat(function)
+        print(function_code)
+        old_stdout = sys.stdout
+        redirected_output = sys.stdout = StringIO()
+
+        context_variables = {}
+
+        try:
+            response = self.ray_executor.run(function_code, function_parameters, context_variables)
+            print(response)
             function_message = redirected_output.getvalue()
             sys.stdout = old_stdout
 

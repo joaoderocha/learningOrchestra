@@ -1,9 +1,15 @@
-from flask import jsonify, request, Flask
+import ast
 import os
-from code_execution import Parameters, Function, Execution
-from utils import Data, Database, UserRequest, Metadata, ObjectStorage
+import types
 from typing import Union
+
+import ray
+from flask import jsonify, request, Flask
+from horovod.ray import RayExecutor
+
+from code_execution import Parameters, Function, Execution, DistributedExecution
 from constants import Constants
+from utils import Data, Database, UserRequest, Metadata, ObjectStorage
 
 app = Flask(__name__)
 
@@ -23,11 +29,15 @@ function_treat = Function()
 
 @app.route(Constants.MICROSERVICE_URI_PATH, methods=["POST"])
 def create_execution() -> jsonify:
+    print(request.json)
     filename = request.json[Constants.NAME_FIELD_NAME]
     description = request.json[Constants.DESCRIPTION_FIELD_NAME]
     service_type = request.args.get(Constants.TYPE_PARAM_NAME)
     function_parameters = request.json[Constants.FUNCTION_PARAMETERS_FIELD_NAME]
     function = request.json[Constants.FUNCTION_FIELD_NAME]
+    distributed = request.json[Constants.DISTRIBUTED_FIELD_NAME]
+
+    print(filename, description, service_type, function_parameters, function, distributed)
 
     request_errors = analyse_post_request_errors(
         request_validator,
@@ -37,14 +47,25 @@ def create_execution() -> jsonify:
     if request_errors is not None:
         return request_errors
 
-    execution = Execution(
-        database,
-        filename,
-        service_type,
-        storage,
-        metadata_creator,
-        parameters_handler,
-        function_treat)
+    if distributed:
+        execution = DistributedExecution(
+            database,
+            filename,
+            service_type,
+            storage,
+            metadata_creator,
+            parameters_handler,
+            function_treat
+        )
+    else:
+        execution = Execution(
+            database,
+            filename,
+            service_type,
+            storage,
+            metadata_creator,
+            parameters_handler,
+            function_treat)
 
     execution.create(function, function_parameters, description)
 
@@ -144,6 +165,31 @@ def analyse_patch_request_errors(request_validator: UserRequest,
         )
 
     return None
+
+
+def runDistributed(function_code, args):
+    tree = ast.parse(function_code)
+
+    if len(tree.body) != 1 or not isinstance(tree.body[0], ast.FunctionDef):
+        raise ValueError("provided code fragment is not a single function")
+
+    comp = compile(function_code, filename="file.py", mode="single")
+    func = types.FunctionType(comp.co_consts[0], {})
+    submit(func, args)
+
+
+def submit(func, args):
+    ray.init(address="auto", _redis_password="5241590000000000")
+    settings = RayExecutor.create_settings(timeout_s=30)
+    executor = RayExecutor(
+        settings,
+        use_gpu=False,
+        num_workers_per_host=1,
+        num_hosts=3,
+    )
+    executor.start()
+    executor.run(func, args, locals())
+    executor.shutdown()
 
 
 if __name__ == "__main__":
