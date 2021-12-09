@@ -4,8 +4,16 @@ WORKDIR /usr/src/code_executor
 COPY . /usr/src/code_executor
 
 RUN apt-get update
+
 RUN apt-get -y install build-essential
+
 RUN apt-get -y install cmake gcc g++
+
+RUN curl https://dl.google.com/dl/cloudsdk/release/google-cloud-sdk.tar.gz > /tmp/google-cloud-sdk.tar.gz
+
+RUN mkdir -p /usr/local/gcloud  && tar -C /usr/local/gcloud -xvf /tmp/google-cloud-sdk.tar.gz && /usr/local/gcloud/google-cloud-sdk/install.sh --quiet
+
+ENV PATH $PATH:/usr/local/gcloud/google-cloud-sdk/bin
 
 RUN pip install -r requirements.txt
 
