@@ -13,3 +13,5 @@ nltk
 scikit-learn
 tensorflow
 tensorflow-datasets
+horovod
+ray
