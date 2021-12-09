@@ -29,19 +29,21 @@ function_treat = Function()
 
 @app.route(Constants.MICROSERVICE_URI_PATH, methods=["POST"])
 def create_execution() -> jsonify:
-    print(request.json)
+    print(f'REQUEST{request.json} \n \n')
     filename = request.json[Constants.NAME_FIELD_NAME]
     description = request.json[Constants.DESCRIPTION_FIELD_NAME]
     service_type = request.args.get(Constants.TYPE_PARAM_NAME)
     function_parameters = request.json[Constants.FUNCTION_PARAMETERS_FIELD_NAME]
     function = request.json[Constants.FUNCTION_FIELD_NAME]
 
+    print(f'ATRIBUTO {Constants.DISTRIBUTED_FIELD_NAME} \n \n')
+
     try:
         distributed = request.json[Constants.DISTRIBUTED_FIELD_NAME]
-        print('RODEI DISTRIBUIDO')
+        print('RODEI DISTRIBUIDO \n \n')
     except KeyError:
         distributed = None
-        print('NAO EH DISTRIBUIDO')
+        print('NAO EH DISTRIBUIDO \n \n')
 
     print(filename, description, service_type, function_parameters, function, distributed)
 
