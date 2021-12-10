@@ -210,7 +210,7 @@ class DistributedExecution(Execution):
                  metadata_creator: Metadata,
                  parameters_handler: Parameters,
                  function_handler: Function,
-                 address: str = "10.182.0.21:6379",
+                 address: str = "auto",
                  redis_password: str = "5241590000000000"
                  ):
         super().__init__(
@@ -222,7 +222,7 @@ class DistributedExecution(Execution):
             parameters_handler,
             function_handler
         )
-        print('Construtor distributed execution', flush=True)
+        print('Construtor distributed execution \n\n', flush=True)
         try:
 
             self.ray = ray.init(address, _redis_password=redis_password)
