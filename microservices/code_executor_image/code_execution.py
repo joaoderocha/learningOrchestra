@@ -227,18 +227,22 @@ class DistributedExecution(Execution):
             self.is_initialized = ray.is_initialized()
             tries = 0
             while( not self.is_initialized):
-                print('Init', flush=True)
+                print(f'Init {self.is_initialized}', flush=True)
                 try:
                     if tries is 0:
                         tries+=1
                         self.ray = ray.init(address=address, _redis_password=redis_password)
+                        self.is_initialized = ray.is_initialized()
                     if tries is 1:
                         tries+=1
                         self.ray = ray.init(address='ray://10.182.0.21:10001')
+                        self.is_initialized = ray.is_initialized()
                     if tries is 2:
                         raise ConnectionError(f'could not connect to ray cluster at {address} or remote cluster')
+                    else:
+                        break
                 except Exception:
-                    print(Exception, flush=True)
+                    print(f'{Exception}, {tries}', flush=True)
 
             print('settings', flush=True)
             self.ray_settings = RayExecutor.create_settings(timeout_s=30)
