@@ -222,7 +222,7 @@ class DistributedExecution(Execution):
             parameters_handler,
             function_handler
         )
-        print('Construtor distributed execution')
+        print('Construtor distributed execution', flush=True)
         try:
 
             self.ray = ray.init(address, _redis_password=redis_password)
@@ -235,23 +235,23 @@ class DistributedExecution(Execution):
             )
             self.ray_executor.start()
         except Exception:
-            print(Exception.__str__())
+            print(Exception.__str__(), flush=True)
 
     def __execute_function(self, function: str,
                            parameters: dict) -> (object, str, str):
         function_parameters = self.__parameters_handler.treat(parameters)
-        print(function_parameters)
+        print(function_parameters, flush=True)
         function_code = self.__function_handler.treat(function)
-        print(function_code)
+        print(function_code, flush=True)
         old_stdout = sys.stdout
         redirected_output = sys.stdout = StringIO()
 
         context_variables = {}
 
         try:
-            print(f'function code, parameters and context', function_code, function_parameters, context_variables)
+            print(f'function code, parameters and context', function_code, function_parameters, context_variables, flush=True)
             response = self.ray_executor.run(function_code, function_parameters, context_variables)
-            print(response)
+            print(response, flush=True)
             function_message = redirected_output.getvalue()
             sys.stdout = old_stdout
 
