@@ -13,6 +13,8 @@ RUN pip install -r requirements.txt
 
 RUN HOROVOD_WITH_GLOO=1 HOROVOD_WITH_TENSORFLOW=1 pip install 'horovod[ray,tensorboard,keras]'
 
+RUN ray start --address='10.182.0.21:6379' --redis-password='5241590000000000' --object-manager-port=8076 --num-cpus=0 --num-gpus=0
+
 ENV MICROSERVICE_IP "0.0.0.0"
 ENV MICROSERVICE_PORT 5009
 ENV EXPLORE_VOLUME_PATH "/explore"
