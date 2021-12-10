@@ -1,4 +1,4 @@
-FROM python:3.7.12-slim
+FROM python:3.7.7-slim
 
 WORKDIR /usr/src/binary_executor
 COPY . /usr/src/binary_executor

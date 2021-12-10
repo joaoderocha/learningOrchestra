@@ -1,4 +1,4 @@
-FROM python:3.7.12-slim
+FROM python:3.7.7-slim
 
 WORKDIR /usr/src/database_executor
 COPY . /usr/src/database_executor
