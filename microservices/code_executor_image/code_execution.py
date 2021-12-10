@@ -230,15 +230,15 @@ class DistributedExecution(Execution):
                 print('Init', flush=True)
                 try:
                     if tries is 0:
-                        self.ray = ray.init(address='ray://10.182.0.21:10001')
+                        self.ray = ray.init(address=address, _redis_password=redis_password)
                         tries+=1
                     if tries is 1:
-                        self.ray = ray.init(address=address, _redis_password=redis_password)
+                        self.ray = ray.init(address='ray://10.182.0.21:10001')
                         tries+=1
                     if tries is 2:
                         raise ConnectionError(f'could not connect to ray cluster at {address} or remote cluster')
                 except Exception:
-                    print(Exception.__str__(), flush=True)
+                    print(Exception, flush=True)
             print('settings', flush=True)
             self.ray_settings = RayExecutor.create_settings(timeout_s=30)
             print('executor', flush=True)
@@ -250,7 +250,7 @@ class DistributedExecution(Execution):
             )
 
         except Exception:
-            print(Exception.__str__(), flush=True)
+            print(Exception, flush=True)
 
     def __execute_function(self, function: str,
                            parameters: dict) -> (object, str, str):
