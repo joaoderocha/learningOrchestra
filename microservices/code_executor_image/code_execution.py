@@ -248,13 +248,13 @@ class DistributedExecution(Execution):
                 num_workers_per_host=1,
                 num_hosts=3,
             )
-            print('start', flush=True)
-            self.ray_executor.start()
+
         except Exception:
             print(Exception.__str__(), flush=True)
 
     def __execute_function(self, function: str,
                            parameters: dict) -> (object, str, str):
+        print('function parameters \n\n', flush=True)
         function_parameters = self.__parameters_handler.treat(parameters)
         print(function_parameters, flush=True)
         function_code = self.__function_handler.treat(function)
@@ -265,7 +265,7 @@ class DistributedExecution(Execution):
         context_variables = {}
 
         try:
-            print(f'function code, parameters and context', function_code, function_parameters, context_variables, flush=True)
+            print(f'function code, parameters and context \n\n', function_code, function_parameters, context_variables, flush=True)
             response = self.ray_executor.run(function_code, function_parameters, context_variables)
             print(response, flush=True)
             function_message = redirected_output.getvalue()
