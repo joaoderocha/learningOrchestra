@@ -1,3 +1,4 @@
+import types
 from concurrent.futures import ThreadPoolExecutor
 
 import ray
@@ -211,7 +212,6 @@ class DistributedExecution(Execution):
                  parameters_handler: Parameters,
                  function_handler: Function,
                  address: str = "auto",
-                 redis_password: str = "5241590000000000"
                  ):
         super().__init__(
             database_connector,
@@ -226,15 +226,15 @@ class DistributedExecution(Execution):
         try:
             self.is_initialized = ray.is_initialized()
             tries = 0
-            while( not self.is_initialized):
+            while (not self.is_initialized):
                 print(f'Init {self.is_initialized}', flush=True)
                 try:
                     if tries is 0:
-                        tries+=1
-                        self.ray = ray.init(address=address, _redis_password=redis_password)
+                        tries += 1
+                        self.ray = ray.init(address=address)
                         self.is_initialized = ray.is_initialized()
                     if tries is 1:
-                        tries+=1
+                        tries += 1
                         self.ray = ray.init(address='ray://10.182.0.21:10001')
                         self.is_initialized = ray.is_initialized()
                     if tries is 2:
@@ -257,6 +257,34 @@ class DistributedExecution(Execution):
         except Exception:
             print(Exception, flush=True)
 
+    def create(self,
+               function: str,
+               function_parameters: dict,
+               description: str) -> None:
+        print('create \n\n', flush=True)
+        super().create(function, function_parameters, description)
+
+    def __pipeline(self,
+                   function: str,
+                   function_parameters: dict,
+                   description: str) -> None:
+        print('pipeline \n\n', flush=True)
+        function_result, function_message, function_error = \
+            self.__execute_function(
+                function,
+                function_parameters)
+
+        if function_error is None:
+            self.__storage.save(function_result, self.filename)
+            self.__metadata_creator.update_finished_flag(self.filename,
+                                                         flag=True)
+
+        self.__metadata_creator.create_execution_document(self.filename,
+                                                          description,
+                                                          function_parameters,
+                                                          function_message,
+                                                          function_error)
+
     def __execute_function(self, function: str,
                            parameters: dict) -> (object, str, str):
         print('function parameters \n\n', flush=True)
@@ -270,8 +298,11 @@ class DistributedExecution(Execution):
         context_variables = {}
 
         try:
-            print(f'function code, parameters and context \n\n', function_code, function_parameters, context_variables, flush=True)
-            response = self.ray_executor.run(function_code, function_parameters, context_variables)
+            print(f'function code, parameters and context \n\n', function_code, function_parameters, context_variables,
+                  flush=True)
+            comp = compile(function_code, filename="file.py", mode="single")
+            func = types.FunctionType(comp.co_consts[0], {})
+            response = self.ray_executor.run(func, list(function_parameters.items()), context_variables)
             print(f'response {response} context variables {context_variables} \n\n', flush=True)
             function_message = redirected_output.getvalue()
             sys.stdout = old_stdout

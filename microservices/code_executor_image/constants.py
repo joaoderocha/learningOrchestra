@@ -9,6 +9,7 @@ class Constants:
     FUNCTION_MESSAGE_FIELD_NAME = "functionMessage"
     DISTRIBUTED_FIELD_NAME = "distributed"
 
+
     DEFAULT_MODEL_MICROSERVICE_TYPE = "defaultModel"
     EXCEPTION_FIELD_NAME = "exception"
 

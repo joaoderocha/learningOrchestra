@@ -36,6 +36,7 @@ def create_execution() -> jsonify:
     function_parameters = request.json[Constants.FUNCTION_PARAMETERS_FIELD_NAME]
     function = request.json[Constants.FUNCTION_FIELD_NAME]
     distributed = request.json[Constants.DISTRIBUTED_FIELD_NAME]
+    
 
     print(f'ATRIBUTO {Constants.DISTRIBUTED_FIELD_NAME} \n \n', flush=True)
 
@@ -59,6 +60,7 @@ def create_execution() -> jsonify:
             parameters_handler,
             function_treat
         )
+
     else:
         execution = Execution(
             database,
