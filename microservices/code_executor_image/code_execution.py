@@ -226,8 +226,8 @@ class DistributedExecution(Execution):
         try:
             self.is_initialized = ray.is_initialized()
             tries = 0
-            while (not self.is_initialized):
-                print(f'Init {self.is_initialized}', flush=True)
+            while not self.is_initialized:
+                print(f'Init {self.is_initialized} {tries}', flush=True)
                 try:
                     if tries is 0:
                         tries += 1
@@ -235,7 +235,7 @@ class DistributedExecution(Execution):
                         self.is_initialized = ray.is_initialized()
                     if tries is 1:
                         tries += 1
-                        self.ray = ray.init(address='ray://10.182.0.21:10001')
+                        self.ray = ray.init(address='ray://10.182.0.30:10001')
                         self.is_initialized = ray.is_initialized()
                     if tries is 2:
                         raise ConnectionError(f'could not connect to ray cluster at {address} or remote cluster')
@@ -262,7 +262,12 @@ class DistributedExecution(Execution):
                function_parameters: dict,
                description: str) -> None:
         print('create \n\n', flush=True)
-        super().create(function, function_parameters, description)
+        self.__metadata_creator.create_file(self.filename, self.service_type)
+
+        self.__thread_pool.submit(self.__pipeline,
+                                  function,
+                                  function_parameters,
+                                  description)
 
     def __pipeline(self,
                    function: str,
