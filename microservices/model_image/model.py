@@ -133,7 +133,9 @@ class Model:
     def __pipeline(self,
                    class_parameters: dict, description: str) -> None:
         try:
+            print(f'class parameters {class_parameters}')
             module = importlib.import_module(self.module_path)
+            print(f'module {module}')
             class_reference = getattr(module, self.class_name)
             class_instance = self.__create_a_class_instance(class_reference,
                                                             class_parameters)
