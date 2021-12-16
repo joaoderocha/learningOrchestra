@@ -154,8 +154,14 @@ class UserRequest:
 
     def valid_class_parameters_validator(self, tool: str, function: str,
                                          function_parameters: dict) -> None:
+        print(f'function {function}')
+        print(f'module {function_parameters}')
+        print(f'tools {tool}')
         module = importlib.import_module(tool)
+        print(f'module {module}')
         module_function = getattr(module, function)
+        print(f'module_function {module}')
+
         valid_function_parameters = signature(module_function.__init__)
 
         for parameter, value in function_parameters.items():
