@@ -30,7 +30,7 @@ def create_default_model() -> jsonify:
     class_name = request.json[Constants.CLASS_FIELD_NAME]
     class_parameters = request.json[Constants.FUNCTION_PARAMETERS_NAME]
 
-    print(f'model name{model_name} description{description} module_path{module_path} class name {class_name} class_parameters {class_parameters}')
+    print(f'model name{model_name} description{description} module_path{module_path} class name {class_name} class_parameters {class_parameters}', flush=True)
 
     request_errors = analyse_post_request_errors(
         request_validator,
@@ -39,7 +39,7 @@ def create_default_model() -> jsonify:
         class_name,
         class_parameters)
 
-    print(f'request errors {request_errors}')
+    print(f'request errors {request_errors}', flush=True)
 
     if request_errors is not None:
         return request_errors
