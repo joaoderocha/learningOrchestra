@@ -135,6 +135,7 @@ class UserRequest:
 
     def available_module_path_validator(self, package: str) -> None:
         try:
+            print(f'tool name {package}', flush=True)
             importlib.import_module(package)
 
         except Exception:
@@ -142,7 +143,10 @@ class UserRequest:
 
     def valid_class_validator(self, tool_name: str, function_name: str) -> None:
         try:
+            print(f'tool name {tool_name}', flush=True)
             module = importlib.import_module(tool_name)
+            print(f'module {module}', flush=True)
+            print(f'function name {function_name}', flush=True)
             getattr(module, function_name)
 
         except Exception:
