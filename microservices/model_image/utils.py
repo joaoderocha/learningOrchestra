@@ -164,9 +164,9 @@ class UserRequest:
 
         valid_function_parameters = signature(module_function.__init__)
 
-        for parameter, value in function_parameters.items():
-            if parameter not in valid_function_parameters.parameters:
-                raise Exception(self.__MESSAGE_INVALID_CLASS_PARAMETER)
+        # for parameter, value in function_parameters.items():
+        #     if parameter not in valid_function_parameters.parameters:
+        #         raise Exception(self.__MESSAGE_INVALID_CLASS_PARAMETER)
 
 
 class ObjectStorage:
