@@ -249,9 +249,8 @@ services:
     environment: *default-service-database-env
 
   gatewayapi:
-    image: devopsfaith/krakend:1.2.0
-    volumes:
-      - "./microservices/krakend:/etc/krakend"
+    build: microservices/krakend
+    image: 127.0.0.1:5050/krakend
     ports:
       - "80:8080"
       - "8090:8090"
