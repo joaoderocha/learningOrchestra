@@ -44,19 +44,19 @@ def create_execution() -> jsonify:
     compilation_code = request.json[Constants.COMPILATION_FIELD_NAME]
     print(f'{model_name}, {parent_name}, {filename}, {description}, {class_method}, {method_parameters},', flush=True)
 
-    request_errors = analyse_post_request_errors(
-        request_validator,
-        data,
-        filename,
-        model_name,
-        parent_name,
-        class_method,
-        method_parameters)
+    # request_errors = analyse_post_request_errors(
+    #     request_validator,
+    #     data,
+    #     filename,
+    #     model_name,
+    #     parent_name,
+    #     class_method,
+    #     method_parameters)
 
-    print(f'{request_errors}', flush=True)
-
-    if request_errors is not None:
-        return request_errors
+    # print(f'{request_errors}', flush=True)
+    #
+    # if request_errors is not None:
+    #     return request_errors
 
     parent_name_service_type = data.get_type(parent_name)
 

@@ -90,6 +90,15 @@ class Parameters:
             self.__DATASET_WITH_OBJECT_KEY_CHARACTER)[Constants.SECOND_ARGUMENT]
 
 
+def _build_parameters(model: str, model_name: str, training_parameters: dict, compile_code: str):
+    return {
+        'model': model,
+        'model_name': model_name,
+        'training_parameters': training_parameters,
+        'compile_code': compile_code
+    }
+
+
 class Execution:
     __DATASET_KEY_CHARACTER = "$"
     __REMOVE_KEY_CHARACTER = ""
@@ -150,7 +159,7 @@ class Execution:
             model_definition = model_instance.to_json()
             treated_parameters = self.__parameters_handler.treat(method_parameters)
 
-            kwargs = self._build_parameters(
+            kwargs = _build_parameters(
                 model=model_definition,
                 model_name=self.parent_name,
                 training_parameters=treated_parameters,
@@ -199,14 +208,6 @@ class Execution:
                 method_result is None:
             return class_instance
         return method_result
-
-    def _build_parameters(self, model: str, model_name: str, training_parameters: dict, compile_code: str):
-        return {
-            'model': model,
-            'model_name': model_name,
-            'training_parameters': training_parameters,
-            'compile_code': compile_code
-        }
 
 
 class ExecutionBackground:
