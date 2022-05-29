@@ -283,7 +283,7 @@ services:
     image: 127.0.0.1:5050/binary_executor
     ports:
       - "5008:5008"
-      - "6006-7000:6006-7000"
+      - "6501-7000:6501-7000"
     depends_on:
       - databaseprimary
       - images
@@ -322,7 +322,7 @@ services:
     image: 127.0.0.1:5050/distributed_training
     ports:
       - "5010:5010"
-      - "6006-7000:6006-7000"
+      - "6006-6500:6006-6500"
     depends_on:
       - databaseprimary
       - images
