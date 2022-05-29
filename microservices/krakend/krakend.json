@@ -1763,6 +1763,22 @@
           "extra_config": {}
         }
       ]
+    },
+    {
+      "endpoint": "/api/learningOrchestra/v1/distributedTraining/tensorflow",
+      "method": "POST",
+      "output_encoding": "no-op",
+      "backend": [
+        {
+          "encoding": "no-op",
+          "method": "POST",
+          "url_pattern": "/distributedTraining?type=train/tensorflow",
+          "host": [
+            "http://distributedtraining:5010"
+          ],
+          "extra_config": {}
+        }
+      ]
     }
   ],
   "extra_config": {

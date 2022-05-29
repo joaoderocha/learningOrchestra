@@ -26,7 +26,7 @@ x-service-database-env: &default-service-database-env
 services:
   databaseapi:
     build: microservices/database_api_image
-    image: learningorchestra/database_api
+    image: 127.0.0.1:5050/database_api
     ports:
       - "5000:5000"
     depends_on:
@@ -89,6 +89,16 @@ services:
       - database
     deploy: *default-deploy-worker
 
+  images:
+    image: registry:2.7.1
+    ports:
+      - "5050:5000"
+    deploy: *default-deploy-manager
+    networks:
+      - database
+    volumes:
+      - "images:/var/lib/registry"
+
   agent:
     image: portainer/agent:linux-amd64-2.1.0-alpine
     volumes:
@@ -121,7 +131,7 @@ services:
 
   sparkmaster:
     build: microservices/spark_image
-    image: learningorchestra/spark
+    image: 127.0.0.1:5050/spark
     ports:
       - "4040:4040"
       - "7077:7077"
@@ -134,7 +144,7 @@ services:
       - database
 
   sparkworker:
-    image: learningorchestra/spark
+    image: 127.0.0.1:5050/spark
     entrypoint: dockerize -wait tcp://sparkmaster:7077 -timeout 240s /sbin/my_init
     ports:
       - "8081:8081"
@@ -157,7 +167,7 @@ services:
 
   projection:
     build: microservices/projection_image
-    image: learningorchestra/projection
+    image: 127.0.0.1:5050/projection
     ports:
       - "5001:5001"
       - "41000:41000"
@@ -176,7 +186,7 @@ services:
 
   builder:
     build: microservices/builder_image
-    image: learningorchestra/builder
+    image: 127.0.0.1:5050/builder
     ports:
       - "5002:5002"
       - "41100:41100"
@@ -195,7 +205,7 @@ services:
 
   datatypehandler:
     build: microservices/data_type_handler_image
-    image: learningorchestra/data_type_handler
+    image: 127.0.0.1:5050/data_type_handler
     ports:
       - "5003:5003"
     depends_on:
@@ -208,7 +218,7 @@ services:
 
   histogram:
     build: microservices/histogram_image
-    image: learningorchestra/histogram
+    image: 127.0.0.1:5050/histogram
     ports:
       - "5004:5004"
     depends_on:
@@ -221,7 +231,7 @@ services:
 
   databasexecutor:
     build: microservices/database_executor_image
-    image: learningorchestra/database_executor
+    image: 127.0.0.1:5050/database_executor
     ports:
       - "5006:5006"
     depends_on:
@@ -239,8 +249,9 @@ services:
     environment: *default-service-database-env
 
   gatewayapi:
-    build: microservices/krakend
-    image: learningorchestra/gatewayapi
+    image: devopsfaith/krakend:1.2.0
+    volumes:
+      - "./microservices/krakend:/etc/krakend"
     ports:
       - "80:8080"
       - "8090:8090"
@@ -251,7 +262,7 @@ services:
 
   model:
     build: microservices/model_image
-    image: learningorchestra/model
+    image: 127.0.0.1:5050/model
     ports:
       - "5007:5007"
     depends_on:
@@ -270,7 +281,7 @@ services:
 
   binaryexecutor:
     build: microservices/binary_executor_image
-    image: learningorchestra/binary_executor
+    image: 127.0.0.1:5050/binary_executor
     ports:
       - "5008:5008"
       - "6006-7000:6006-7000"
@@ -289,7 +300,7 @@ services:
 
   codexecutor:
     build: microservices/code_executor_image
-    image: learningorchestra/code_executor
+    image: 127.0.0.1:5050/code_executor
     ports:
       - "5009:5009"
     depends_on:
@@ -306,6 +317,25 @@ services:
     networks:
       - database
     environment: *default-service-database-env
+
+  distributedtraining:
+    build: microservices/distributed_training_image
+    image: 127.0.0.1:5050/distributed_training
+    ports:
+      - "5010:5010"
+      - "6006-7000:6006-7000"
+    depends_on:
+      - databaseprimary
+      - images
+    deploy: *default-deploy-manager
+    networks:
+      - database
+    environment: *default-service-database-env
+    volumes:
+      - "model:/models"
+      - "binary_executor:/binaries"
+      - "database_executor:/transform"
+      - "code_executor:/code_executions"
 
 networks:
   database:

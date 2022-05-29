@@ -1,0 +1,9 @@
+#!/bin/bash
+
+cd /home/ray
+
+ray start --head --port=6379
+
+cd /usr/src/distributed_training
+
+python server.py
