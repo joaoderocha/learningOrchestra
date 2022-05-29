@@ -124,7 +124,7 @@ distributed_training_repository=127.0.0.1:5050/distributed_training
 echo "--------------------------------------------------------------------"
 echo "Pushing distributedTraining microservice image..."
 echo "--------------------------------------------------------------------"
-docker push $code_executor_repository
+docker push $distributed_training_repository
 
 
 echo "--------------------------------------------------------------------"
