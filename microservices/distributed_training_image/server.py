@@ -1,8 +1,8 @@
 from flask import jsonify, request, Flask
 import os
 from distributed_training import Execution, Parameters
-from utils import UserRequest, Database, ObjectStorage, Data, Metadata, ProcessController, find_port
-from typing import Union, Tuple
+from utils import UserRequest, Database, ObjectStorage, Data, Metadata
+from typing import Union
 from constants import Constants
 import ray
 from horovod.ray import RayExecutor
@@ -41,31 +41,24 @@ def create_execution() -> jsonify:
     description = request.json[Constants.DESCRIPTION_FIELD_NAME]
     class_method = request.json[Constants.METHOD_FIELD_NAME]
     method_parameters = request.json[Constants.METHOD_PARAMETERS_FIELD_NAME]
+    compilation_code = request.json[Constants.COMPILATION_FIELD_NAME]
     print(f'{model_name}, {parent_name}, {filename}, {description}, {class_method}, {method_parameters},', flush=True)
 
-    # request_errors = analyse_post_request_errors(
-    #     request_validator,
-    #     data,
-    #     filename,
-    #     model_name,
-    #     parent_name,
-    #     class_method,
-    #     method_parameters)
-    #
-    # print(f'{request_errors}', flush=True)
-    #
-    # if request_errors is not None:
-    #     return request_errors
-    #
-    # monitoring_response = None
-    # if monitoring_path is not '':
-    #     process_nickname, url = init_monitoring(filename, monitoring_path)
-    #     monitoring_response = {
-    #         'process_nickname': process_nickname,
-    #         'url': url,
-    #     }
+    request_errors = analyse_post_request_errors(
+        request_validator,
+        data,
+        filename,
+        model_name,
+        parent_name,
+        class_method,
+        method_parameters)
 
-    parent_name_service_type = 'function/python'  # data.get_type(parent_name)
+    print(f'{request_errors}', flush=True)
+
+    if request_errors is not None:
+        return request_errors
+
+    parent_name_service_type = data.get_type(parent_name)
 
     train_model = Execution(
         database,
@@ -78,6 +71,7 @@ def create_execution() -> jsonify:
         parameters_handler,
         storage,
         executor,
+        compilation_code,
     )
 
     print(f'{train_model}', flush=True)
@@ -92,55 +86,6 @@ def create_execution() -> jsonify:
             Constants.MESSAGE_RESULT:
                 f'{Constants.MICROSERVICE_URI_SWITCHER[service_type]}'
                 f'{filename}{Constants.MICROSERVICE_URI_GET_PARAMS}',
-        }),
-        Constants.HTTP_STATUS_CODE_SUCCESS_CREATED,
-    )
-
-
-@app.route(f'{Constants.MICROSERVICE_URI_PATH}/<filename>', methods=["PATCH"])
-def update_execution(filename: str) -> jsonify:
-    service_type = request.args.get(Constants.TYPE_FIELD_NAME)
-    description = request.json[Constants.DESCRIPTION_FIELD_NAME]
-    method_parameters = request.json[Constants.METHOD_PARAMETERS_FIELD_NAME]
-    model_name = request.json[Constants.MODEL_NAME_FIELD_NAME]
-
-    request_errors = analyse_patch_request_errors(
-        request_validator,
-        data,
-        filename,
-        model_name,
-        method_parameters)
-
-    if request_errors is not None:
-        return request_errors
-
-    module_path, function = data.get_module_and_class_from_a_instance(
-        model_name)
-    model_name = data.get_model_name_from_a_child(filename)
-    method_name = data.get_class_method_from_a_executor_name(filename)
-
-    parent_name_service_type = data.get_type(model_name)
-
-    default_model = Execution(
-        database,
-        filename,
-        service_type,
-        model_name,
-        parent_name_service_type,
-        metadata_creator,
-        method_name,
-        parameters_handler,
-        storage)
-
-    default_model.update(
-        module_path, method_parameters, description)
-
-    return (
-        jsonify({
-            Constants.MESSAGE_RESULT:
-                f'{Constants.MICROSERVICE_URI_SWITCHER[service_type]}'
-                f'{filename}{Constants.MICROSERVICE_URI_GET_PARAMS}',
-            Constants.EXTRA_RESULTS: {}
         }),
         Constants.HTTP_STATUS_CODE_SUCCESS_CREATED,
     )

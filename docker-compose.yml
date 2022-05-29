@@ -323,6 +323,7 @@ services:
     ports:
       - "5010:5010"
       - "6006-6500:6006-6500"
+      - "8265:8265"
     depends_on:
       - databaseprimary
       - images

@@ -12,6 +12,7 @@ class Constants:
     EXCEPTION_FIELD_NAME = "exception"
     EXTRA_RESULTS = "extra_results"
     MONITORING_NICKNAME_FIELD_NAME = "nickname"
+    COMPILATION_FIELD_NAME = "compile_code"
 
     MODELS_VOLUME_PATH = "MODELS_VOLUME_PATH"
     BINARY_VOLUME_PATH = "BINARY_VOLUME_PATH"

@@ -104,7 +104,8 @@ class Execution:
                  class_method: str,
                  parameters_handler: Parameters,
                  storage: ObjectStorage,
-                 executor: RayExecutor
+                 executor: RayExecutor,
+                 compile_code: str = '',
                  ):
         self.__metadata_creator = metadata_creator
         self.__thread_pool = ThreadPoolExecutor()
@@ -117,6 +118,7 @@ class Execution:
         self.executor_service_type = executor_service_type
         self.parent_name_service_type = parent_name_service_type
         self.distributed_executor = executor
+        self.compile_code = compile_code
 
     def create(self,
                module_path: str,
@@ -136,17 +138,6 @@ class Execution:
                                   method_parameters,
                                   description)
 
-    def update(self,
-               module_path: str,
-               method_parameters: dict,
-               description: str) -> None:
-        self.__metadata_creator.update_finished_flag(self.executor_name, False)
-
-        self.__thread_pool.submit(self.__pipeline,
-                                  module_path,
-                                  method_parameters,
-                                  description)
-
     def __pipeline(self,
                    module_path: str,
                    method_parameters: dict,
@@ -155,17 +146,31 @@ class Execution:
             importlib.import_module(module_path)
             model_instance = self.__storage.read(self.parent_name,
                                                  self.parent_name_service_type)
-            print('model_instance', model_instance, flush=True)
-            method_result = self.__execute_a_object_method(model_instance,
-                                                           self.class_method,
-                                                           method_parameters)
+
+            model_definition = model_instance.to_json()
+            treated_parameters = self.__parameters_handler.treat(method_parameters)
+
+            kwargs = self._build_parameters(
+                model=model_definition,
+                model_name=self.parent_name,
+                training_parameters=treated_parameters,
+                compile_code=self.compile_code,
+            )
+
+            self.distributed_executor.start(executable_cls=ExecutionBackground, executable_kwargs=kwargs)
+            self.distributed_executor.execute(lambda worker: worker.compile)
+
+            method_result = self.distributed_executor.execute(lambda worker: worker.train)
+
+            model_instance.set_weights(method_result)
 
             self.__storage.save(method_result, self.executor_name,
                                 self.executor_service_type)
-            print(model_instance, flush=True)
 
             self.__metadata_creator.update_finished_flag(self.executor_name,
                                                          flag=True)
+            self.distributed_executor.shutdown()
+
 
         except Exception as exception:
             traceback.print_exc()
@@ -193,5 +198,52 @@ class Execution:
                 self.executor_service_type == Constants.TRAIN_SCIKITLEARN_TYPE or \
                 method_result is None:
             return class_instance
-
         return method_result
+
+    def _build_parameters(self, model: str, model_name: str, training_parameters: dict, compile_code: str):
+        return {
+            'model': model,
+            'model_name': model_name,
+            'training_parameters': training_parameters,
+            'compile_code': compile_code
+        }
+
+
+class ExecutionBackground:
+    def __init__(self, **kwargs):
+        import tensorflow
+        import horovod
+        self.model = tensorflow.keras.models.model_from_json(kwargs['model'])
+        self.model_name = kwargs['model_name']
+        self.training_parameters = kwargs['training_parameters']
+        self.compile_code = kwargs['compile_code']
+
+    def compile(self):
+        context = {self.model_name: self.model}
+        if self.compile_code is not None:
+            exec(self.compile_code, locals(), context)
+        return self.model.optimizer is not None
+
+    def train(self):
+        self.model.fit(**self.training_parameters)
+        return self.model.get_weights()
+
+# compile_code = """
+# import tensorflow as tf
+# model.compile(
+#     optimizer=tf.keras.optimizers.Adam(0.001),
+#     loss=tf.keras.losses.SparseCategoricalCrossentropy(),
+#     metrics=[tf.keras.metrics.SparseCategoricalAccuracy()],
+# )
+# response = model
+# """
+#
+# d = dict({
+#     'module_path': 'tensorflow.keras.models',
+#     'class_name': 'model',
+#     'class': 'Sequential',
+#     'class_parameters': {'layers': [tensorflow.keras.layers.Flatten(input_shape=(28, 28)),
+#                                     tensorflow.keras.layers.Dense(128, activation='relu'),
+#                                     tensorflow.keras.layers.Dense(10, activation='softmax')]},
+#     'compile_code': compile_code
+# })
