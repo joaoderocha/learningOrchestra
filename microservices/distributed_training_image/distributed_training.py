@@ -60,6 +60,7 @@ class Parameters:
             f'{class_instance_name}=')
 
         import tensorflow
+        import horovod
         exec(class_code, locals(), context_variables)
 
         return context_variables[class_instance_name]
