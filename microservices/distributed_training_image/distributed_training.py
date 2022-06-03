@@ -18,7 +18,7 @@ class Parameters:
 
     def treat(self, method_parameters: dict) -> dict:
         parameters = method_parameters.copy()
-
+        print('parameters: ', parameters)
         for name, value in parameters.items():
             if type(value) is list:
                 new_value = []
@@ -32,6 +32,7 @@ class Parameters:
 
     def __treat_value(self, value: object) -> object:
         if self.__is_dataset(value):
+            print('is_dataset ', flush=True)
             dataset_name = self.__get_dataset_name_from_value(
                 value)
 
@@ -45,6 +46,7 @@ class Parameters:
                     dataset_name)
 
         elif self.__is_a_class_instance(value):
+            print('is_a_class', flush=True)
             return self.__get_a_class_instance(value)
 
         else:
@@ -54,13 +56,13 @@ class Parameters:
         class_instance_name = "class_instance"
         class_instance = None
         context_variables = {}
-
+        print('class_code: ', class_code, flush=True)
         class_code = class_code.replace(
             self.__CLASS_INSTANCE_CHARACTER,
             f'{class_instance_name}=')
 
         import tensorflow
-        import horovod
+        import horovod.tensorflow.keras as hvd
         exec(class_code, locals(), context_variables)
 
         return context_variables[class_instance_name]
@@ -158,6 +160,7 @@ class Execution:
                                                  self.parent_name_service_type)
 
             model_definition = model_instance.to_json()
+            print('method_parameters', method_parameters)
             treated_parameters = self.__parameters_handler.treat(method_parameters)
 
             kwargs = _build_parameters(

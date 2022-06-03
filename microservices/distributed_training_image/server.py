@@ -34,7 +34,6 @@ parameters_handler = Parameters(database, data)
 @app.route(Constants.MICROSERVICE_URI_PATH, methods=["POST"])
 def create_execution() -> jsonify:
     service_type = request.args.get(Constants.TYPE_FIELD_NAME)
-
     model_name = request.json[Constants.MODEL_NAME_FIELD_NAME]
     parent_name = request.json[Constants.PARENT_NAME_FIELD_NAME]
     filename = request.json[Constants.NAME_FIELD_NAME]
@@ -78,6 +77,7 @@ def create_execution() -> jsonify:
 
     module_path, class_name = data.get_module_and_class_from_a_instance(
         model_name)
+    print('module_path: ', module_path, 'class_name: ', class_name)
     train_model.create(
         module_path, class_name, method_parameters, description)
 
