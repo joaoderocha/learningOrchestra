@@ -345,7 +345,7 @@ services:
     depends_on:
       - distributedtraining
     networks:
-      - databse
+      - database
     deploy:
       replicas: 2
       placement:
