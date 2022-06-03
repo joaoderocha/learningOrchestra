@@ -169,8 +169,9 @@ class Execution:
                 training_parameters=treated_parameters,
                 compile_code=self.compile_code,
             )
-
+            print('executor starting...', flush=True)
             self.distributed_executor.start(executable_cls=ExecutionBackground, executable_kwargs=kwargs)
+            print('executor ready...', flush=True)
 
             compiled = self.distributed_executor.execute(lambda worker: worker.compile())
             print('compiled ', compiled)
@@ -187,7 +188,7 @@ class Execution:
 
 
         except Exception as exception:
-            print('error', exception)
+            print('error', exception, flush=True)
             traceback.print_exc()
             self.__metadata_creator.create_execution_document(
                 self.executor_name,
