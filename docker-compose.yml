@@ -341,8 +341,7 @@ services:
     image: rayproject/ray:latest-cpu
     ports:
       - "5011:5011"
-      - "6006-6500:6006-6500"
-      - "8265:8265"
+      - "8266:8266"
     depends_on:
       - distributedtraining
       - images
@@ -355,11 +354,6 @@ services:
           - "node.role==worker"
     links:
       - distributedtraining
-    volumes:
-      - "model:/models"
-      - "binary_executor:/binaries"
-      - "database_executor:/transform"
-      - "code_executor:/code_executions"
     command: ray start --address=tasks.distributedtraining:6379
 
 networks:
