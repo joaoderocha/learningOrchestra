@@ -158,7 +158,7 @@ class Execution:
             importlib.import_module(module_path)
             model_instance = self.__storage.read(self.parent_name,
                                                  self.parent_name_service_type)
-
+            print('model_instance ', model_instance, flush=True)
             model_definition = model_instance.to_json()
             print('method_parameters', method_parameters)
             treated_parameters = self.__parameters_handler.treat(method_parameters)
@@ -175,7 +175,7 @@ class Execution:
             print('compiled ', compiled)
             method_result = self.distributed_executor.execute(lambda worker: worker.train)
             print('method_results', method_result)
-            model_instance.set_weights(method_result[0])
+            model_instance.set_weights(method_result)
 
             self.__storage.save(method_result, self.executor_name,
                                 self.executor_service_type)
