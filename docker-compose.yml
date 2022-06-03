@@ -341,6 +341,7 @@ services:
     image: rayproject/ray:latest-cpu
     ports:
       - "5011:5011"
+      - "6006-6500:6006-6500"
       - "8265:8265"
     depends_on:
       - distributedtraining
