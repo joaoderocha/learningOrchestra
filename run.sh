@@ -8,9 +8,7 @@ echo "--------------------------------------------------------------------"
 docker build --tag spark_task microservices/spark_task_image
 docker push 127.0.0.1:5050/spark_task
 
-docker build --tag distributed_training_image microservices/distributed_training_image
-docker push 127.0.0.1:5050/distributed_training_image
-
+docker-compose build
 
 echo "--------------------------------------------------------------------"
 echo "Adding the microservice images in docker daemon security exception..."
