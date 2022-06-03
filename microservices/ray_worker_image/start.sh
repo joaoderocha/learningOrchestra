@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo RAYHEAD
+echo "$RAYHEAD"
 
-ray start --address=RAYHEAD
+ray start --address="$RAYHEAD"
 
