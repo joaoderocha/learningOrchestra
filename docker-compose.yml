@@ -344,6 +344,7 @@ services:
       - "8265:8265"
     depends_on:
       - distributedtraining
+      - images
     networks:
       - database
     deploy:
