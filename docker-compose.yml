@@ -337,6 +337,28 @@ services:
       - "database_executor:/transform"
       - "code_executor:/code_executions"
 
+  rayworker:
+    image: rayproject/ray:latest-cpu
+    ports:
+      - "5011:5011"
+      - "8265:8265"
+    depends_on:
+      - distributedtraining
+    networks:
+      - databse
+    deploy:
+      replicas: 2
+      placement:
+        constraints:
+          - "node.role==worker"
+    environment: *default-service-database-env
+    volumes:
+      - "model:/models"
+      - "binary_executor:/binaries"
+      - "database_executor:/transform"
+      - "code_executor:/code_executions"
+    command: ['ray', 'start', "--address='tasks.distributedtraining:6379'"]
+
 networks:
   database:
   spark:

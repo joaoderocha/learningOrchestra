@@ -169,6 +169,8 @@ class Execution:
                 training_parameters=treated_parameters,
                 compile_code=self.compile_code,
             )
+
+            print('kwargs', kwargs, flush=True)
             print('executor starting...', flush=True)
             self.distributed_executor.start(executable_cls=ExecutionBackground, executable_kwargs=kwargs)
             print('executor ready...', flush=True)
@@ -240,22 +242,3 @@ class ExecutionBackground:
         self.model.fit(**self.training_parameters)
         return self.model.get_weights()
 
-# compile_code = """
-# import tensorflow as tf
-# model.compile(
-#     optimizer=tf.keras.optimizers.Adam(0.001),
-#     loss=tf.keras.losses.SparseCategoricalCrossentropy(),
-#     metrics=[tf.keras.metrics.SparseCategoricalAccuracy()],
-# )
-# response = model
-# """
-#
-# d = dict({
-#     'module_path': 'tensorflow.keras.models',
-#     'class_name': 'model',
-#     'class': 'Sequential',
-#     'class_parameters': {'layers': [tensorflow.keras.layers.Flatten(input_shape=(28, 28)),
-#                                     tensorflow.keras.layers.Dense(128, activation='relu'),
-#                                     tensorflow.keras.layers.Dense(10, activation='softmax')]},
-#     'compile_code': compile_code
-# })
