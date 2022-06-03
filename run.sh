@@ -47,6 +47,14 @@ echo "--------------------------------------------------------------------"
 docker push $distributed_training_repository
 
 
+ray_worker_repository=127.0.0.1:5050/ray_worker
+
+echo "--------------------------------------------------------------------"
+echo "Pushing ray_worker microservice image..."
+echo "--------------------------------------------------------------------"
+docker push $ray_worker_repository
+
+
 echo "--------------------------------------------------------------------"
 echo "Updating portainer agent microservice in each cluster node..."
 echo "--------------------------------------------------------------------"
