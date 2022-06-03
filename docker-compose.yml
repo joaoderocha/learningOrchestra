@@ -354,7 +354,7 @@ services:
           - "node.role==worker"
     links:
       - distributedtraining
-    command: ray start --address=tasks.distributedtraining:6379 && tail -f /dev/null
+    command: bash -c "ray start --address=tasks.distributedtraining:6379 && tail -f /dev/null"
 
 networks:
   database:
