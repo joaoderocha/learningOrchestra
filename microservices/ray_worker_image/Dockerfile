@@ -1,7 +1,7 @@
 FROM rayproject/ray:latest-cpu
 
 
-RUN apt-get update && apt-get install -y wget
+RUN sudo apt-get update && sudo apt-get install -y wget
 
 ENV DOCKERIZE_VERSION v0.6.1
 
