@@ -2,5 +2,5 @@
 
 echo "$RAYHEAD"
 
-ray start --address="$RAYHEAD"
+ray start --address="$RAYHEAD":6379
 
