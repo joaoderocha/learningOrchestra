@@ -338,6 +338,7 @@ services:
       - "code_executor:/code_executions"
 
   rayworker:
+    tty: true
     build: microservices/ray_worker_image
     image: 127.0.0.1:5050/ray_worker
     ports:
@@ -355,7 +356,7 @@ services:
           - "node.role==worker"
     links:
       - distributedtraining
-    command: dockerize -wait tcp://distributedtraining:6379 -timeout 240s 'ray start --address=distributedtraining && tail -f /dev/null'
+    command: dockerize -wait tcp://distributedtraining:6379 -timeout 240s ray start --address=distributedtraining
 
 networks:
   database:
