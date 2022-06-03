@@ -355,7 +355,7 @@ services:
           - "node.role==worker"
     links:
       - distributedtraining
-    command: dockerize -wait tcp://distributedtraining:6379 -timeout 240s ray start --address=distributedtraining && tail -f /dev/null
+    command: dockerize -wait tcp://distributedtraining:6379 -timeout 240s 'ray start --address=distributedtraining && tail -f /dev/null'
 
 networks:
   database:
