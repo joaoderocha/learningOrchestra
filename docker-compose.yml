@@ -353,13 +353,14 @@ services:
       placement:
         constraints:
           - "node.role==worker"
-    environment: *default-service-database-env
+    links:
+      - distributedtraining
     volumes:
       - "model:/models"
       - "binary_executor:/binaries"
       - "database_executor:/transform"
       - "code_executor:/code_executions"
-    command: ['ray', 'start', "--address='tasks.distributedtraining:6379'"]
+    command: ray start --address=tasks.distributedtraining:6379
 
 networks:
   database:
