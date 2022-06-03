@@ -171,11 +171,12 @@ class Execution:
             )
 
             self.distributed_executor.start(executable_cls=ExecutionBackground, executable_kwargs=kwargs)
-            compiled = self.distributed_executor.execute(lambda worker: worker.compile)
+
+            compiled = self.distributed_executor.execute(lambda worker: worker.compile())
             print('compiled ', compiled)
-            method_result = self.distributed_executor.execute(lambda worker: worker.train)
+            method_result = self.distributed_executor.execute(lambda worker: worker.train())
             print('method_results', method_result)
-            model_instance.set_weights(method_result)
+            model_instance.set_weights(method_result[0])
 
             self.__storage.save(method_result, self.executor_name,
                                 self.executor_service_type)
@@ -222,8 +223,10 @@ class ExecutionBackground:
         self.model_name = kwargs['model_name']
         self.training_parameters = kwargs['training_parameters']
         self.compile_code = kwargs['compile_code']
+        print('modelo iniciado...', self.model, flush=True)
 
     def compile(self):
+        print('buildando...', flush=True)
         context = {self.model_name: self.model}
         if self.compile_code is not None:
             exec(self.compile_code, locals(), context)
@@ -231,6 +234,7 @@ class ExecutionBackground:
         return self.model.optimizer is not None
 
     def train(self):
+        print('treiando...', flush=True)
         self.model.fit(**self.training_parameters)
         return self.model.get_weights()
 
