@@ -1,11 +1,14 @@
 FROM rayproject/ray:latest-cpu
 
 RUN sudo apt-get update
+
 RUN sudo apt-get -y install build-essential
+
 RUN sudo apt-get -y install cmake gcc g++
 
 
 WORKDIR /usr/src/distributed_training
+
 COPY . /usr/src/distributed_training
 
 
