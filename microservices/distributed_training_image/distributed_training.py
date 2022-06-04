@@ -222,7 +222,6 @@ class Execution:
 class ExecutionBackground:
     def __init__(self, **kwargs):
         import tensorflow
-        import horovod
         self.model = tensorflow.keras.models.model_from_json(kwargs['model'])
         self.model_name = kwargs['model_name']
         self.training_parameters = kwargs['training_parameters']
