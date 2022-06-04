@@ -345,8 +345,8 @@ services:
       - database
     environment:
       - HOST_PORT=6379
-      - OBJECT_MANAGER_PORT=12345
-      - NODE_MANAGER_PORT=123456
+      - OBJECT_MANAGER_PORT=4501
+      - NODE_MANAGER_PORT=4502
       - NODE_IP_ADDRESS=tasks.distributedtraining
       - DASHBOARD_PORT=8265
       - DATABASE_URL=mongodb://root:owl45#21@databaseprimary,databasesecondary
@@ -379,8 +379,8 @@ services:
     environment:
       - RAY_HEAD=tasks.distributedtraining
       - $HOST_PORT=6379
-      - OBJECT_MANAGER_PORT=12345
-      - NODE_MANAGER_PORT=123456
+      - OBJECT_MANAGER_PORT=4501
+      - NODE_MANAGER_PORT=4502
     deploy:
       mode: global
       placement:
