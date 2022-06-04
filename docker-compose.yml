@@ -324,6 +324,8 @@ services:
       - "5010:5010"
       - "6006-6500:6006-6500"
       - "8265:8265"
+      - "12345:12345"
+      - "12346:12346"
     depends_on:
       - databaseprimary
       - images
@@ -343,13 +345,15 @@ services:
     ports:
       - "5011:5011"
       - "8266:8266"
+      - "12345:12345"
+      - "12346:12346"
     depends_on:
       - distributedtraining
       - images
     networks:
       - database
     environment:
-      - RAYHEAD=distributedtraining
+      - RAYHEAD=tasks.distributedtraining
     deploy:
       replicas: 2
       placement:
@@ -357,7 +361,7 @@ services:
           - "node.role==worker"
     links:
       - distributedtraining
-    command: dockerize -wait tcp://distributedtraining:6379 -timeout 240s ./start.sh
+    command: dockerize -wait tcp://tasks.distributedtraining:6379 -timeout 240s ./start.sh
 
 networks:
   database:
