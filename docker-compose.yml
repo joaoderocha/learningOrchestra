@@ -261,7 +261,7 @@ services:
 
   model:
     build: microservices/model_image
-    image: learningorchestra/model
+    image: 127.0.0.1:5050/model
     ports:
       - "5007:5007"
     depends_on:
@@ -299,7 +299,7 @@ services:
 
   codexecutor:
     build: microservices/code_executor_image
-    image: learningorchestra/code_executor
+    image: 127.0.0.1:5050/code_executor
     ports:
       - "5009:5009"
     depends_on:
