@@ -26,7 +26,7 @@ x-service-database-env: &default-service-database-env
 services:
   databaseapi:
     build: microservices/database_api_image
-    image: 127.0.0.1:5050/database_api
+    image: learningorchestra/database_api
     ports:
       - "5000:5000"
     depends_on:
@@ -250,7 +250,7 @@ services:
 
   gatewayapi:
     build: microservices/krakend
-    image: learningorchestra/gatewayapi
+    image: 127.0.0.1:5050/gatewayapi
     ports:
       - "80:8080"
       - "8090:8090"
