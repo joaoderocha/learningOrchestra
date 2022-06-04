@@ -2,4 +2,4 @@
 
 echo "$RAYHEAD"
 
-ray start --address="$RAYHEAD":6379 --object-manager-port=12345 --node-manager-port=12346 --block
+ray start --address="$RAYHEAD":6379 --object-manager-port="$OBJECT_MANAGER_PORT" --node-manager-port="$NODE_MANAGER_PORT" --block

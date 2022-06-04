@@ -337,13 +337,18 @@ services:
         published: 12346
         protocol: tcp
         mode: host
-#    depends_on:
-#      - databaseprimary
-#      - images
+    depends_on:
+      - databaseprimary
+      - images
     deploy: *default-deploy-manager
     networks:
       - database
-    environment: *default-service-database-env
+    environment:
+      - HOST_PORT=6379
+      - OBJECT_MANAGER_PORT=12345
+      - NODE_MANAGER_PORT=123456
+      - NODE_IP_ADDRESS=tasks.distributedtraining
+      - DASHBOARD_PORT=8265
     volumes:
       - "model:/models"
       - "binary_executor:/binaries"
@@ -369,6 +374,8 @@ services:
       - database
     environment:
       - RAYHEAD=tasks.distributedtraining
+      - OBJECT_MANAGER_PORT=12345
+      - NODE_MANAGER_PORT=123456
     deploy:
       mode: global
       placement:
