@@ -329,12 +329,12 @@ services:
         mode: host
       - target: 8265
         published: 8265
-      - target: 12345
-        published: 12345
+      - target: 4501
+        published: 4501
         protocol: tcp
         mode: host
-      - target: 12346
-        published: 12346
+      - target: 4502
+        published: 4502
         protocol: tcp
         mode: host
     depends_on:
@@ -363,12 +363,12 @@ services:
     build: microservices/ray_worker_image
     image: 127.0.0.1:5050/ray_worker
     ports:
-      - target: 12345
-        published: 12345
+      - target: 4501
+        published: 4501
         protocol: tcp
         mode: host
-      - target: 12346
-        published: 12346
+      - target: 4502
+        published: 4502
         protocol: tcp
         mode: host
     depends_on:
