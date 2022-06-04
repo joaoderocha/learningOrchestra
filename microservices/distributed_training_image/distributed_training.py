@@ -93,7 +93,7 @@ class Parameters:
             self.__DATASET_WITH_OBJECT_KEY_CHARACTER)[Constants.SECOND_ARGUMENT]
 
 
-def _build_parameters(model: str, model_name: str, training_parameters: dict, compile_code: str):
+def _build_parameters(model: str, model_name: str, training_parameters: dict, compile_code: str = ''):
     return {
         'model': model,
         'model_name': model_name,
@@ -172,12 +172,12 @@ class Execution:
 
             print('kwargs', kwargs, flush=True)
             print('executor starting...', flush=True)
-            self.distributed_executor.start(executable_cls=ExecutionBackground, executable_kwargs=kwargs)
+            self.distributed_executor.start()
             print('executor ready...', flush=True)
-
-            compiled = self.distributed_executor.execute(lambda worker: worker.compile())
-            print('compiled ', compiled)
-            method_result = self.distributed_executor.execute(lambda worker: worker.train())
+            method_result = self.distributed_executor.run(train, kwargs=kwargs)
+            # compiled = self.distributed_executor.execute(lambda worker: worker.compile())
+            # print('compiled ', compiled)
+            # method_result = self.distributed_executor.execute(lambda worker: worker.train())
             print('method_results', method_result)
             model_instance.set_weights(method_result[0])
 
@@ -186,12 +186,12 @@ class Execution:
 
             self.__metadata_creator.update_finished_flag(self.executor_name,
                                                          flag=True)
-            self.distributed_executor.shutdown()
+            # self.distributed_executor.shutdown()
 
 
         except Exception as exception:
             print('error', exception, flush=True)
-            self.distributed_executor.shutdown()
+            # self.distributed_executor.shutdown()
             traceback.print_exc()
             self.__metadata_creator.create_execution_document(
                 self.executor_name,
@@ -220,28 +220,34 @@ class Execution:
         return method_result
 
 
-class ExecutionBackground:
-    def __init__(self, **kwargs):
-        print('model iniciado', flush=True)
-        import tensorflow
-        self.model = tensorflow.keras.models.model_from_json(kwargs['model'])
-        print('carregando argumentos 1', flush=True)
-        self.model_name = kwargs['model_name']
-        print('carregando argumentos 2', flush=True)
-        self.training_parameters = kwargs['training_parameters']
-        print('carregando argumentos 3', flush=True)
-        self.compile_code = kwargs['compile_code']
-        print('modelo iniciado...', self.model, flush=True)
+def train(*args, **kwargs):
+    class ExecutionBackground:
+        def __init__(self, **kwargs):
+            print('model iniciado', flush=True)
+            import tensorflow
+            self.model = tensorflow.keras.models.model_from_json(kwargs['model'])
+            print('carregando argumentos 1', flush=True)
+            self.model_name = kwargs['model_name']
+            print('carregando argumentos 2', flush=True)
+            self.training_parameters = kwargs['training_parameters']
+            print('carregando argumentos 3', flush=True)
+            self.compile_code = kwargs['compile_code']
+            print('modelo iniciado...', self.model, flush=True)
 
-    def compile(self):
-        print('buildando...', flush=True)
-        context = {self.model_name: self.model}
-        if self.compile_code is not None:
-            exec(self.compile_code, locals(), context)
-            print('Model compiled', flush=True)
-        return self.model.optimizer is not None
+        def compile(self):
+            print('buildando...', flush=True)
+            context = {self.model_name: self.model}
 
-    def train(self):
-        print('treiando...', flush=True)
-        self.model.fit(**self.training_parameters)
-        return self.model.get_weights()
+            if self.compile_code is not None or '':
+                exec(self.compile_code, locals(), context)
+                print('Model compiled', flush=True)
+            return self.model.optimizer is not None
+
+        def train(self):
+            print('treiando...', flush=True)
+            self.model.fit(**self.training_parameters)
+            return self.model.get_weights()
+
+    exe = ExecutionBackground(**kwargs)
+    exe.compile()
+    return exe.train()
