@@ -63,6 +63,7 @@ class Constants:
     EXPLORE_TENSORFLOW_TYPE = "explore/tensorflow"
 
     MONITORING_TENSORFLOW_TYPE = "monitoring/tensorflow"
+    DISTRIBUTED_TRAINING_TYPE = "train/horovod"
 
     API_PATH = "/api/learningOrchestra/v1/"
 
@@ -76,6 +77,7 @@ class Constants:
         PREDICT_SCIKITLEARN_TYPE: f'{API_PATH}{PREDICT_SCIKITLEARN_TYPE}',
         PREDICT_TENSORFLOW_TYPE: f'{API_PATH}{PREDICT_TENSORFLOW_TYPE}',
         MONITORING_TENSORFLOW_TYPE: f'{API_PATH}{MONITORING_TENSORFLOW_TYPE}',
+        DISTRIBUTED_TRAINING_TYPE: f'{API_PATH}{DISTRIBUTED_TRAINING_TYPE}',
     }
 
     MICROSERVICE_URI_PATH = "/distributedTraining"

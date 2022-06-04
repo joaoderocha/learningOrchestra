@@ -26,7 +26,7 @@ x-service-database-env: &default-service-database-env
 services:
   databaseapi:
     build: microservices/database_api_image
-    image: learningorchestra/database_api
+    image: 127.0.0.1:5050/database_api
     ports:
       - "5000:5000"
     depends_on:

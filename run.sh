@@ -37,6 +37,15 @@ echo "--------------------------------------------------------------------"
 
 sleep 30
 
+database_api_repository=127.0.0.1:5050/database_api
+
+echo "--------------------------------------------------------------------"
+echo "Pushing gateway_api microservice image..."
+echo "--------------------------------------------------------------------"
+
+docker push $database_api_repository
+
+
 binary_executor_repository=127.0.0.1:5050/binary_executor
 
 echo "--------------------------------------------------------------------"
