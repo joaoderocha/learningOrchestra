@@ -37,6 +37,13 @@ echo "--------------------------------------------------------------------"
 
 sleep 30
 
+binary_executor_repository=127.0.0.1:5050/binary_executor
+
+echo "--------------------------------------------------------------------"
+echo "Pushing binary_executor microservice image..."
+echo "--------------------------------------------------------------------"
+docker push $binary_executor_repository
+
 
 distributed_training_repository=127.0.0.1:5050/distributed_training
 

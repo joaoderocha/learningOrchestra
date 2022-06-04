@@ -280,7 +280,7 @@ services:
 
   binaryexecutor:
     build: microservices/binary_executor_image
-    image: learningorchestra/binary_executor
+    image: 127.0.0.1:5050/binary_executor
     ports:
       - "5008:5008"
       - "6501-7000:6501-7000"
