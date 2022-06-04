@@ -191,6 +191,7 @@ class Execution:
 
         except Exception as exception:
             print('error', exception, flush=True)
+            self.distributed_executor.shutdown()
             traceback.print_exc()
             self.__metadata_creator.create_execution_document(
                 self.executor_name,
