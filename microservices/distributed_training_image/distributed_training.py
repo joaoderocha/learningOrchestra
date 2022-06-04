@@ -221,10 +221,15 @@ class Execution:
 
 class ExecutionBackground:
     def __init__(self, **kwargs):
+        print('model iniciado', flush=True)
         import tensorflow
         self.model = tensorflow.keras.models.model_from_json(kwargs['model'])
+        print('carregando argumentos 1', flush=True)
+
         self.model_name = kwargs['model_name']
+        print('carregando argumentos 2', flush=True)
         self.training_parameters = kwargs['training_parameters']
+        print('carregando argumentos 3', flush=True)
         self.compile_code = kwargs['compile_code']
         print('modelo iniciado...', self.model, flush=True)
 
@@ -240,4 +245,3 @@ class ExecutionBackground:
         print('treiando...', flush=True)
         self.model.fit(**self.training_parameters)
         return self.model.get_weights()
-

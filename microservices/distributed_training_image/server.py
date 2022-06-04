@@ -13,7 +13,7 @@ ray.init(address='auto')
 hvd.init()
 
 settings = RayExecutor.create_settings(30)
-executor = RayExecutor(settings, num_workers=1, use_gpu=False)
+executor = RayExecutor(settings, num_workers=1, use_gpu=False, )
 
 app = Flask(__name__)
 
