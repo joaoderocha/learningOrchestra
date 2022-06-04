@@ -225,7 +225,6 @@ class ExecutionBackground:
         import tensorflow
         self.model = tensorflow.keras.models.model_from_json(kwargs['model'])
         print('carregando argumentos 1', flush=True)
-
         self.model_name = kwargs['model_name']
         print('carregando argumentos 2', flush=True)
         self.training_parameters = kwargs['training_parameters']

@@ -1,4 +1,4 @@
-FROM rayproject/ray:latest-cpu
+FROM rayproject/ray-ml:latest-cpu
 
 
 RUN sudo apt-get update && sudo apt-get install -y wget
