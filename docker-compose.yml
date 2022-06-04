@@ -349,6 +349,10 @@ services:
       - NODE_MANAGER_PORT=123456
       - NODE_IP_ADDRESS=tasks.distributedtraining
       - DASHBOARD_PORT=8265
+      - DATABASE_URL=mongodb://root:owl45#21@databaseprimary,databasesecondary
+      - DATABASE_PORT=27017
+      - DATABASE_REPLICA_SET=replica_set
+      - DATABASE_NAME=database
     volumes:
       - "model:/models"
       - "binary_executor:/binaries"
