@@ -1765,7 +1765,7 @@
       ]
     },
     {
-      "endpoint": "/api/learningOrchestra/v1/distributedTraining/tensorflow",
+      "endpoint": "/api/learningOrchestra/v1/train/horovod",
       "method": "POST",
       "output_encoding": "no-op",
       "backend": [
