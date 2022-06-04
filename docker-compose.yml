@@ -321,14 +321,25 @@ services:
     build: microservices/distributed_training_image
     image: 127.0.0.1:5050/distributed_training
     ports:
-      - "5010:5010"
-      - "6006-6500:6006-6500"
-      - "8265:8265"
-      - "12345:12345"
-      - "12346:12346"
-    depends_on:
-      - databaseprimary
-      - images
+      - target: 5010
+        published: 5010
+      - target: 6379
+        published: 6379
+        protocol: tcp
+        mode: host
+      - target: 8265
+        published: 8265
+      - target: 12345
+        published: 12345
+        protocol: tcp
+        mode: host
+      - target: 12346
+        published: 12346
+        protocol: tcp
+        mode: host
+#    depends_on:
+#      - databaseprimary
+#      - images
     deploy: *default-deploy-manager
     networks:
       - database
@@ -343,10 +354,14 @@ services:
     build: microservices/ray_worker_image
     image: 127.0.0.1:5050/ray_worker
     ports:
-      - "5011:5011"
-      - "8266:8266"
-      - "12345:12345"
-      - "12346:12346"
+      - target: 12345
+        published: 12345
+        protocol: tcp
+        mode: host
+      - target: 12346
+        published: 12346
+        protocol: tcp
+        mode: host
     depends_on:
       - distributedtraining
       - images
@@ -355,13 +370,13 @@ services:
     environment:
       - RAYHEAD=tasks.distributedtraining
     deploy:
-      replicas: 2
+      mode: global
       placement:
         constraints:
           - "node.role==worker"
     links:
       - distributedtraining
-    command: dockerize -wait tcp://tasks.distributedtraining:6379 -timeout 240s ./start.sh
+    command: dockerize -wait tcp://distributedtraining:6379 -timeout 240s ./start.sh
 
 networks:
   database:
