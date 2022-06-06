@@ -175,9 +175,6 @@ class Execution:
             self.distributed_executor.start()
             print('executor ready...', flush=True)
             method_result = self.distributed_executor.run(train, kwargs=kwargs)
-            # compiled = self.distributed_executor.execute(lambda worker: worker.compile())
-            # print('compiled ', compiled)
-            # method_result = self.distributed_executor.execute(lambda worker: worker.train())
             print('method_results', method_result)
             model_instance.set_weights(method_result[0])
 
@@ -186,12 +183,12 @@ class Execution:
 
             self.__metadata_creator.update_finished_flag(self.executor_name,
                                                          flag=True)
-            # self.distributed_executor.shutdown()
+            self.distributed_executor.shutdown()
 
 
         except Exception as exception:
             print('error', exception, flush=True)
-            # self.distributed_executor.shutdown()
+            self.distributed_executor.shutdown()
             traceback.print_exc()
             self.__metadata_creator.create_execution_document(
                 self.executor_name,
