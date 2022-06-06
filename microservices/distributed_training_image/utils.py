@@ -198,6 +198,7 @@ class ObjectStorage:
     def save(self, instance: object, filename: str, service_type: str) -> None:
         model_output_path = ObjectStorage.get_write_binary_path(
             filename, service_type)
+        print('model_output_path', model_output_path)
         if not os.path.exists(os.path.dirname(model_output_path)):
             os.makedirs(os.path.dirname(model_output_path))
 

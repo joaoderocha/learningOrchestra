@@ -175,14 +175,15 @@ class Execution:
             self.distributed_executor.start()
             print('executor ready...', flush=True)
             method_result = self.distributed_executor.run(train, kwargs=kwargs)
-            print('method_results', method_result)
-            model_instance.set_weights(method_result[0])
-
+            print('method_results', method_result, f'\n len: {len(method_result)}', flush=True)
+            self.__execute_a_object_method(model_instance, 'set_weights', dict({'weights': method_result[0]}))
+            print('saving results to model...', flush=True)
             self.__storage.save(method_result, self.executor_name,
                                 self.executor_service_type)
-
+            print('updating flag...', flush=True)
             self.__metadata_creator.update_finished_flag(self.executor_name,
                                                          flag=True)
+
             self.distributed_executor.shutdown()
 
 
