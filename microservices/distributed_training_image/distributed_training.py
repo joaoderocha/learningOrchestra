@@ -133,9 +133,6 @@ class Execution:
         self.parent_name_service_type = parent_name_service_type
         self.distributed_executor = executor
         self.compile_code = compile_code
-        print('Starting executor...', flush=True)
-        self.distributed_executor.start()
-        print('executor ready...', flush=True)
 
     def create(self,
                module_path: str,
@@ -161,6 +158,9 @@ class Execution:
                    description: str) -> None:
         try:
             importlib.import_module(module_path)
+            print('Starting executor...', flush=True)
+            self.distributed_executor.start()
+            print('executor ready...', flush=True)
             model_instance = self.__storage.read(self.parent_name,
                                                  self.parent_name_service_type)
             print('model_instance ', model_instance, flush=True)
@@ -219,11 +219,11 @@ class Execution:
             return class_instance
         return method_result
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self.distributed_executor.shutdown()
-
 
 def train(*args, **kwargs):
+    import tensorflow
+    import horovod.tensorflow.keras as hvd
+
     class InstanceTreatment:
         __CLASS_INSTANCE_CHARACTER = "#"
         __REMOVE_KEY_CHARACTER = ""
