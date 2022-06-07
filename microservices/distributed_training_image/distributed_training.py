@@ -222,6 +222,7 @@ class Execution:
 def train(*args, **kwargs):
     import tensorflow
     import horovod.tensorflow.keras as hvd
+    hvd.init()
 
     class InstanceTreatment:
         __CLASS_INSTANCE_CHARACTER = "#"
@@ -257,7 +258,6 @@ def train(*args, **kwargs):
 
             import tensorflow
             import horovod.tensorflow.keras as hvd
-            hvd.init()
             exec(class_code, locals(), context_variables)
 
             return context_variables[class_instance_name]
@@ -275,8 +275,10 @@ def train(*args, **kwargs):
             self.instanceTreatment = InstanceTreatment()
             self.model = tensorflow.keras.models.model_from_json(kwargs['model'])
             self.model_name = kwargs['model_name']
-            self.training_parameters = dict({**kwargs['training_parameters']},
-                                            **self.instanceTreatment.treat(kwargs['callbacks']))
+            self.training_parameters = dict({
+                **kwargs['training_parameters'],
+                'callbacks': self.instanceTreatment.treat(kwargs['callbacks'])
+            })
             self.compile_code = kwargs['compile_code']
             print('modelo iniciado...', self.model, flush=True)
 
