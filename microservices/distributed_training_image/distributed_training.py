@@ -3,6 +3,8 @@ from concurrent.futures import ThreadPoolExecutor
 from copy import deepcopy
 from typing import List
 
+from horovod import ray
+
 from utils import Database, Data, Metadata, ObjectStorage
 from constants import Constants
 import traceback
@@ -45,6 +47,7 @@ class Parameters:
                 a = self.__data.get_object_from_dataset(
                     dataset_name, object_name)
                 print('tipo', type(a), flush=True)
+
                 try:
                     return a.copy()
                 except Exception:
@@ -193,7 +196,7 @@ class Execution:
             method_result = self.distributed_executor.run(train, kwargs=dict({
                 # 'model': model_definition,
                 # 'model_name': deepcopy(self.parent_name),
-                'training_parameters': treated_parameters,
+                'training_parameters': dict({'x': treated_parameters['x'], 'y': treated_parameters['y']}),
                 # 'compile_code': deepcopy(self.compile_code),
                 # 'callbacks': callbacks,
             }))
