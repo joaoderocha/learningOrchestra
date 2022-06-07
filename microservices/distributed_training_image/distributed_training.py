@@ -170,16 +170,17 @@ class Execution:
             print('method_parameters', method_parameters)
             treated_parameters = self.__parameters_handler.treat(method_parameters)
 
-            kwargs = _build_parameters(
-                model=model_definition,
-                model_name=self.parent_name,
-                training_parameters=treated_parameters.copy(),
-                callbacks=method_parameters['callbacks'],
-                compile_code=self.compile_code,
-            )
+            callbacks = method_parameters['callbacks']
+            del treated_parameters['callbacks']
 
-            print('kwargs', kwargs, flush=True)
-            method_result = self.distributed_executor.run(train, kwargs=kwargs.copy())
+            method_result = self.distributed_executor.run(train, kwargs=dict({
+                'model': model_definition,
+                'model_name': self.parent_name,
+                'training_parameters': treated_parameters,
+                'compile_code': self.compile_code,
+                'callbacks': method_parameters['callbacks'],
+            }))
+
             print('method_results', method_result, f'\n len: {len(method_result)}', flush=True)
             self.__execute_a_object_method(model_instance, 'set_weights', dict({'weights': method_result[0]}))
             print('saving results to model...', flush=True)
