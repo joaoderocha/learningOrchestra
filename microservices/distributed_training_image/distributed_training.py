@@ -257,6 +257,7 @@ def train(*args, **kwargs):
 
             import tensorflow
             import horovod.tensorflow.keras as hvd
+            hvd.init()
             exec(class_code, locals(), context_variables)
 
             return context_variables[class_instance_name]
