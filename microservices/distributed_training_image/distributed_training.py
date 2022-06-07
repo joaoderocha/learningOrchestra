@@ -190,9 +190,9 @@ class Execution:
             print('callbacks', callbacks, type(callbacks), flush=True)
             method_result = self.distributed_executor.run(train, kwargs=dict({
                 'model': model_definition,
-                'model_name': deepcopy(self.parent_name),
+                'model_name': self.parent_name,
                 'training_parameters': treated_parameters,
-                'compile_code': deepcopy(self.compile_code),
+                'compile_code': self.compile_code,
                 'callbacks': callbacks,
             }))
             print('method_results', method_result, f'\n len: {len(method_result)}', flush=True)
@@ -238,6 +238,7 @@ def train(*args, **kwargs):
     import ray
     import tensorflow
     import horovod.tensorflow.keras as hvd
+    import numpy
     hvd.init()
 
     class InstanceTreatment:
@@ -292,8 +293,8 @@ def train(*args, **kwargs):
             self.model_name = kwargs['model_name']
             self.training_parameters = dict({
                 **kwargs['training_parameters'],
-                'x': fromstring(kwargs['x']),
-                'y': fromstring(kwargs['y']),
+                'x': numpy.fromstring(kwargs['x']),
+                'y': numpy.fromstring(kwargs['y']),
                 'callbacks': self.instanceTreatment.treat(kwargs['callbacks'])
             })
             self.compile_code = kwargs['compile_code']
