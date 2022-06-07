@@ -41,13 +41,22 @@ class Parameters:
 
             if self.__has_dot_in_dataset_name(value):
                 object_name = self.__get_name_after_dot_from_value(value)
-                return self.__data.get_object_from_dataset(
+
+                a = self.__data.get_object_from_dataset(
                     dataset_name, object_name)
-
+                print('tipo', type(a), flush=True)
+                try:
+                    return a.copy()
+                except Exception:
+                    return a
             else:
-                return self.__data.get_dataset_content(
+                a = self.__data.get_dataset_content(
                     dataset_name)
-
+                print('tipo', type(a), flush=True)
+                try:
+                    return a.copy()
+                except Exception:
+                    return a
         elif self.__is_a_class_instance(value):
             print('is_a_class', flush=True)
             return self.__get_a_class_instance(value)
@@ -169,7 +178,7 @@ class Execution:
             print('model_instance ', model_instance, flush=True)
             model_definition = model_instance.to_json()
             print('method_parameters', method_parameters, flush=True)
-            treated_parameters = deepcopy(self.__parameters_handler.treat(method_parameters))
+            treated_parameters = self.__parameters_handler.treat(method_parameters)
 
             callbacks = deepcopy(method_parameters['callbacks'])
             del treated_parameters['callbacks']
