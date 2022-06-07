@@ -187,8 +187,6 @@ class Execution:
             self.__metadata_creator.update_finished_flag(self.executor_name,
                                                          flag=True)
 
-
-
         except Exception as exception:
             print('error', exception, flush=True)
             traceback.print_exc()
@@ -230,10 +228,11 @@ def train(*args, **kwargs):
         def __init__(self):
             pass
 
-        def treat(self, method_parameters: dict) -> dict:
+        def treat(self, method_parameters: []) -> dict:
             parameters = method_parameters.copy()
             print('parameters: ', parameters)
-            for name, value in parameters.items():
+            iterable = parameters if isinstance(parameters, list) else parameters.items()
+            for name, value in iterable:
                 if type(value) is list:
                     new_value = []
                     for item in value:
