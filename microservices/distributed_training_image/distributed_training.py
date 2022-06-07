@@ -178,16 +178,17 @@ class Execution:
             print('method_parameters', method_parameters, flush=True)
             treated_parameters = self.__parameters_handler.treat(method_parameters)
 
-            callbacks = deepcopy(method_parameters['callbacks'])
+            callbacks = method_parameters['callbacks']
             del treated_parameters['callbacks']
 
             print('treated parameters', treated_parameters, flush=True)
 
-            print('model definition', model_definition, type(model_definition), flush=True)
-            print('model_name', self.parent_name, type(self.parent_name), flush=True)
-            print('training_parameters', treated_parameters, type(treated_parameters), flush=True)
-            print('compile_code', self.compile_code, type(self.compile_code), flush=True)
-            print('callbacks', callbacks, type(callbacks), flush=True)
+            print('\nmodel definition', model_definition, type(model_definition), flush=True)
+            print('\nmodel_name', self.parent_name, type(self.parent_name), flush=True)
+            print('\ntraining_parameters', treated_parameters, type(treated_parameters), flush=True)
+            print('\ncompile_code', self.compile_code, type(self.compile_code), flush=True)
+            print('\ncallbacks', callbacks, type(callbacks), flush=True)
+
             method_result = self.distributed_executor.run(train, kwargs=dict({
                 'model': model_definition,
                 'model_name': self.parent_name,
@@ -195,6 +196,7 @@ class Execution:
                 'compile_code': self.compile_code,
                 'callbacks': callbacks,
             }))
+
             print('method_results', method_result, f'\n len: {len(method_result)}', flush=True)
             self.__execute_a_object_method(model_instance, 'set_weights', dict({'weights': method_result[0]}))
             print('saving results to model...', flush=True)
