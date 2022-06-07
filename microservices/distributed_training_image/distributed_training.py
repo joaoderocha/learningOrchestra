@@ -187,7 +187,6 @@ class Execution:
             self.__metadata_creator.update_finished_flag(self.executor_name,
                                                          flag=True)
 
-            self.distributed_executor.shutdown()
 
 
         except Exception as exception:
