@@ -93,12 +93,14 @@ class Parameters:
             self.__DATASET_WITH_OBJECT_KEY_CHARACTER)[Constants.SECOND_ARGUMENT]
 
 
-def _build_parameters(model: str, model_name: str, training_parameters: dict, compile_code: str = ''):
+def _build_parameters(model: str, model_name: str, training_parameters: dict, callbacks: str = '',
+                      compile_code: str = ''):
     return {
         'model': model,
         'model_name': model_name,
         'training_parameters': training_parameters,
-        'compile_code': compile_code
+        'compile_code': compile_code,
+        'callbacks': callbacks,
     }
 
 
@@ -131,6 +133,9 @@ class Execution:
         self.parent_name_service_type = parent_name_service_type
         self.distributed_executor = executor
         self.compile_code = compile_code
+        print('Starting executor...', flush=True)
+        self.distributed_executor.start()
+        print('executor ready...', flush=True)
 
     def create(self,
                module_path: str,
@@ -167,13 +172,11 @@ class Execution:
                 model=model_definition,
                 model_name=self.parent_name,
                 training_parameters=treated_parameters,
+                callbacks=method_parameters['callbacks'],
                 compile_code=self.compile_code,
             )
 
             print('kwargs', kwargs, flush=True)
-            print('executor starting...', flush=True)
-            self.distributed_executor.start()
-            print('executor ready...', flush=True)
             method_result = self.distributed_executor.run(train, kwargs=kwargs)
             print('method_results', method_result, f'\n len: {len(method_result)}', flush=True)
             self.__execute_a_object_method(model_instance, 'set_weights', dict({'weights': method_result[0]}))
@@ -189,7 +192,6 @@ class Execution:
 
         except Exception as exception:
             print('error', exception, flush=True)
-            self.distributed_executor.shutdown()
             traceback.print_exc()
             self.__metadata_creator.create_execution_document(
                 self.executor_name,
@@ -217,18 +219,69 @@ class Execution:
             return class_instance
         return method_result
 
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.distributed_executor.shutdown()
+
 
 def train(*args, **kwargs):
+    class InstanceTreatment:
+        __CLASS_INSTANCE_CHARACTER = "#"
+        __REMOVE_KEY_CHARACTER = ""
+
+        def __init__(self):
+            pass
+
+        def treat(self, method_parameters: dict) -> dict:
+            parameters = method_parameters.copy()
+            print('parameters: ', parameters)
+            for name, value in parameters.items():
+                if type(value) is list:
+                    new_value = []
+                    for item in value:
+                        new_value.append(self.__treat_value(item))
+                    parameters[name] = new_value
+                else:
+                    parameters[name] = self.__treat_value(value)
+
+            return parameters
+
+        def __treat_value(self, value: object) -> object:
+            if self.__is_a_class_instance(value):
+                print('is_a_class', flush=True)
+                return self.__get_a_class_instance(value)
+            else:
+                return value
+
+        def __get_a_class_instance(self, class_code: str) -> object:
+            class_instance_name = "class_instance"
+            class_instance = None
+            context_variables = {}
+            print('class_code: ', class_code, flush=True)
+            class_code = class_code.replace(
+                self.__CLASS_INSTANCE_CHARACTER,
+                f'{class_instance_name}=')
+
+            import tensorflow
+            import horovod.tensorflow.keras as hvd
+            exec(class_code, locals(), context_variables)
+
+            return context_variables[class_instance_name]
+
+        def __is_a_class_instance(self, value: object) -> bool:
+            if type(value) != str:
+                return False
+            else:
+                return self.__CLASS_INSTANCE_CHARACTER in value
+
     class ExecutionBackground:
         def __init__(self, **kwargs):
             print('model iniciado', flush=True)
             import tensorflow
+            self.instanceTreatment = InstanceTreatment()
             self.model = tensorflow.keras.models.model_from_json(kwargs['model'])
-            print('carregando argumentos 1', flush=True)
             self.model_name = kwargs['model_name']
-            print('carregando argumentos 2', flush=True)
-            self.training_parameters = kwargs['training_parameters']
-            print('carregando argumentos 3', flush=True)
+            self.training_parameters = dict({**kwargs['training_parameters']},
+                                            **self.instanceTreatment.treat(kwargs['callbacks']))
             self.compile_code = kwargs['compile_code']
             print('modelo iniciado...', self.model, flush=True)
 
