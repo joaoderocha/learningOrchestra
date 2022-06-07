@@ -2,7 +2,7 @@ import importlib
 from concurrent.futures import ThreadPoolExecutor
 from copy import deepcopy
 from typing import List
-
+from numpy import array2string, ndarray, fromstring
 from horovod import ray
 
 from utils import Database, Data, Metadata, ObjectStorage
@@ -48,18 +48,13 @@ class Parameters:
                     dataset_name, object_name)
                 print('tipo', type(a), flush=True)
 
-                try:
-                    return a.copy()
-                except Exception:
-                    return a
+                return array2string(a) if isinstance(a, ndarray) else a
             else:
                 a = self.__data.get_dataset_content(
                     dataset_name)
                 print('tipo', type(a), flush=True)
-                try:
-                    return a.copy()
-                except Exception:
-                    return a
+
+                return array2string(a) if isinstance(a, ndarray) else a
         elif self.__is_a_class_instance(value):
             print('is_a_class', flush=True)
             return self.__get_a_class_instance(value)
@@ -194,11 +189,11 @@ class Execution:
             print('compile_code', self.compile_code, type(self.compile_code), flush=True)
             print('callbacks', callbacks, type(callbacks), flush=True)
             method_result = self.distributed_executor.run(train, kwargs=dict({
-                # 'model': model_definition,
-                # 'model_name': deepcopy(self.parent_name),
-                'training_parameters': dict({'x': treated_parameters['x'], 'y': treated_parameters['y']}),
-                # 'compile_code': deepcopy(self.compile_code),
-                # 'callbacks': callbacks,
+                'model': model_definition,
+                'model_name': deepcopy(self.parent_name),
+                'training_parameters': treated_parameters,
+                'compile_code': deepcopy(self.compile_code),
+                'callbacks': callbacks,
             }))
             print('method_results', method_result, f'\n len: {len(method_result)}', flush=True)
             self.__execute_a_object_method(model_instance, 'set_weights', dict({'weights': method_result[0]}))
@@ -297,6 +292,8 @@ def train(*args, **kwargs):
             self.model_name = kwargs['model_name']
             self.training_parameters = dict({
                 **kwargs['training_parameters'],
+                'x': fromstring(kwargs['x']),
+                'y': fromstring(kwargs['y']),
                 'callbacks': self.instanceTreatment.treat(kwargs['callbacks'])
             })
             self.compile_code = kwargs['compile_code']
