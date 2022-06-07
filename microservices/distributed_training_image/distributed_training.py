@@ -173,13 +173,13 @@ class Execution:
             kwargs = _build_parameters(
                 model=model_definition,
                 model_name=self.parent_name,
-                training_parameters=treated_parameters,
+                training_parameters=treated_parameters.copy(),
                 callbacks=method_parameters['callbacks'],
                 compile_code=self.compile_code,
             )
 
             print('kwargs', kwargs, flush=True)
-            method_result = self.distributed_executor.run(train, kwargs=kwargs)
+            method_result = self.distributed_executor.run(train, kwargs=kwargs.copy())
             print('method_results', method_result, f'\n len: {len(method_result)}', flush=True)
             self.__execute_a_object_method(model_instance, 'set_weights', dict({'weights': method_result[0]}))
             print('saving results to model...', flush=True)
