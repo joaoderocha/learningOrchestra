@@ -1,5 +1,7 @@
 import importlib
 from concurrent.futures import ThreadPoolExecutor
+from typing import List
+
 from utils import Database, Data, Metadata, ObjectStorage
 from constants import Constants
 import traceback
@@ -228,20 +230,14 @@ def train(*args, **kwargs):
         def __init__(self):
             pass
 
-        def treat(self, method_parameters: []) -> dict:
+        def treat(self, method_parameters: []) -> []:
             parameters = method_parameters.copy()
             print('parameters: ', parameters)
             iterable = parameters if isinstance(parameters, list) else parameters.items()
-            for name, value in iterable:
-                if type(value) is list:
-                    new_value = []
-                    for item in value:
-                        new_value.append(self.__treat_value(item))
-                    parameters[name] = new_value
-                else:
-                    parameters[name] = self.__treat_value(value)
-
-            return parameters
+            new_value = []
+            for item in iterable:
+                new_value.append(self.__treat_value(item))
+            return new_value
 
         def __treat_value(self, value: object) -> object:
             if self.__is_a_class_instance(value):
