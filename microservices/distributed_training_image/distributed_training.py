@@ -220,6 +220,7 @@ class Execution:
 
 
 def train(*args, **kwargs):
+    import ray
     import tensorflow
     import horovod.tensorflow.keras as hvd
     hvd.init()
@@ -271,7 +272,6 @@ def train(*args, **kwargs):
     class ExecutionBackground:
         def __init__(self, **kwargs):
             print('model iniciado', flush=True)
-            import tensorflow
             self.instanceTreatment = InstanceTreatment()
             self.model = tensorflow.keras.models.model_from_json(kwargs['model'])
             self.model_name = kwargs['model_name']

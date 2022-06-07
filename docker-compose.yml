@@ -343,6 +343,7 @@ services:
     deploy: *default-deploy-manager
     networks:
       - database
+      - ray
     environment:
       - HOST_PORT=6379
       - OBJECT_MANAGER_PORT=4501
@@ -376,6 +377,7 @@ services:
       - images
     networks:
       - database
+      - ray
     environment:
       - RAY_HEAD=distributedtraining
       - HOST_PORT=6379
@@ -394,6 +396,7 @@ networks:
   database:
   spark:
   portainer:
+  ray:
 
 volumes:
   images:
