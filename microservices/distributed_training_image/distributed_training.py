@@ -193,9 +193,9 @@ class Execution:
             method_result = self.distributed_executor.run(train, kwargs=dict({
                 # 'model': model_definition,
                 # 'model_name': deepcopy(self.parent_name),
-                # 'training_parameters': treated_parameters,
+                'training_parameters': treated_parameters,
                 # 'compile_code': deepcopy(self.compile_code),
-                'callbacks': callbacks,
+                # 'callbacks': callbacks,
             }))
             print('method_results', method_result, f'\n len: {len(method_result)}', flush=True)
             self.__execute_a_object_method(model_instance, 'set_weights', dict({'weights': method_result[0]}))
