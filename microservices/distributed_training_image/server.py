@@ -13,7 +13,7 @@ ray.init(address=f'{os.environ["NODE_IP_ADDRESS"]}:{os.environ["HOST_PORT"]}')
 hvd.init()
 
 settings = RayExecutor.create_settings(timeout_s=360, placement_group_timeout_s=360)
-executor = RayExecutor(settings, num_workers=2, use_gpu=False, )
+executor = RayExecutor(settings, num_workers=2, use_gpu=False)
 
 app = Flask(__name__)
 
@@ -73,11 +73,9 @@ def create_execution() -> jsonify:
         compilation_code,
     )
 
-    print(f'{train_model}', flush=True)
-
     module_path, class_name = data.get_module_and_class_from_a_instance(
         model_name)
-    print('module_path: ', module_path, 'class_name: ', class_name)
+
     train_model.create(
         module_path, class_name, method_parameters, description)
 

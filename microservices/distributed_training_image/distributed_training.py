@@ -24,7 +24,7 @@ class Parameters:
 
     def treat(self, method_parameters: dict) -> dict:
         parameters = method_parameters.copy()
-        print('parameters: ', parameters)
+        print('\nparameters: ', parameters)
         for name, value in parameters.items():
             if type(value) is list:
                 new_value = []
@@ -38,7 +38,7 @@ class Parameters:
 
     def __treat_value(self, value: object) -> object:
         if self.__is_dataset(value):
-            print('is_dataset ', flush=True)
+            print('\nis_dataset ', flush=True)
             dataset_name = self.__get_dataset_name_from_value(
                 value)
 
@@ -47,17 +47,17 @@ class Parameters:
 
                 a = self.__data.get_object_from_dataset(
                     dataset_name, object_name)
-                print('tipo', type(a), flush=True)
+                print('\ntipo', type(a), flush=True)
 
                 return array2string(a) if isinstance(a, ndarray) else a
             else:
                 a = self.__data.get_dataset_content(
                     dataset_name)
-                print('tipo', type(a), flush=True)
+                print('\ntipo', type(a), flush=True)
 
                 return array2string(a) if isinstance(a, ndarray) else a
         elif self.__is_a_class_instance(value):
-            print('is_a_class', flush=True)
+            print('\nis_a_class', flush=True)
             return self.__get_a_class_instance(value)
 
         else:
@@ -174,15 +174,11 @@ class Execution:
             print('executor ready...', flush=True)
             model_instance = self.__storage.read(self.parent_name,
                                                  self.parent_name_service_type)
-            print('model_instance ', model_instance, flush=True)
             model_definition = model_instance.to_json()
-            print('method_parameters', method_parameters, flush=True)
             treated_parameters = self.__parameters_handler.treat(method_parameters)
 
             callbacks = method_parameters['callbacks']
             del treated_parameters['callbacks']
-
-            print('treated parameters', treated_parameters, flush=True)
 
             print('\nmodel definition', model_definition, type(model_definition), flush=True)
             print('\nmodel_name', self.parent_name, type(self.parent_name), flush=True)
@@ -235,6 +231,3 @@ class Execution:
                 method_result is None:
             return class_instance
         return method_result
-
-
-
