@@ -191,10 +191,10 @@ class Execution:
             print('compile_code', self.compile_code, type(self.compile_code), flush=True)
             print('callbacks', callbacks, type(callbacks), flush=True)
             method_result = self.distributed_executor.run(train, kwargs=dict({
-                'model': model_definition,
-                'model_name': deepcopy(self.parent_name),
-                'training_parameters': treated_parameters,
-                'compile_code': deepcopy(self.compile_code),
+                # 'model': model_definition,
+                # 'model_name': deepcopy(self.parent_name),
+                # 'training_parameters': treated_parameters,
+                # 'compile_code': deepcopy(self.compile_code),
                 'callbacks': callbacks,
             }))
             print('method_results', method_result, f'\n len: {len(method_result)}', flush=True)
