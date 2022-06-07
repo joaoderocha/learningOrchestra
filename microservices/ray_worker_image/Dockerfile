@@ -16,4 +16,4 @@ RUN sudo wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_
 
 COPY start.sh .
 
-RUN HOROVOD_WITH_GLOO=1 HOROVOD_WITH_TENSORFLOW=1 pip install 'horovod[ray,tensorflow,keras]'
+RUN HOROVOD_WITH_GLOO=1 HOROVOD_WITHOUT_MPI=1 HOROVOD_WITH_TENSORFLOW=1 pip install 'horovod[ray,tensorflow,keras]'

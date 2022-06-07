@@ -1,5 +1,6 @@
 import importlib
 from concurrent.futures import ThreadPoolExecutor
+from copy import deepcopy
 from typing import List
 
 from utils import Database, Data, Metadata, ObjectStorage
@@ -168,17 +169,16 @@ class Execution:
             print('model_instance ', model_instance, flush=True)
             model_definition = model_instance.to_json()
             print('method_parameters', method_parameters)
-            treated_parameters = self.__parameters_handler.treat(method_parameters)
-
-            callbacks = method_parameters['callbacks']
+            treated_parameters = deepcopy(self.__parameters_handler.treat(method_parameters))
+            callbacks = deepcopy(method_parameters['callbacks'])
             del treated_parameters['callbacks']
-
+            print(treated_parameters, flush=True)
             method_result = self.distributed_executor.run(train, kwargs=dict({
                 'model': model_definition,
-                'model_name': self.parent_name,
+                'model_name': deepcopy(self.parent_name),
                 'training_parameters': treated_parameters,
-                'compile_code': self.compile_code,
-                'callbacks': method_parameters['callbacks'],
+                'compile_code': deepcopy(self.compile_code),
+                'callbacks': callbacks,
             }))
 
             print('method_results', method_result, f'\n len: {len(method_result)}', flush=True)

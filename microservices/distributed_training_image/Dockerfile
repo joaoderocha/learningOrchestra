@@ -14,7 +14,7 @@ COPY . /usr/src/distributed_training
 
 RUN pip install -r requirements.txt
 
-RUN HOROVOD_WITH_GLOO=1 HOROVOD_WITH_TENSORFLOW=1 pip install 'horovod[ray,tensorflow,keras]'
+RUN HOROVOD_WITH_GLOO=1 HOROVOD_WITHOUT_MPI=1 HOROVOD_WITH_TENSORFLOW=1 pip install 'horovod[ray,tensorflow,keras]'
 
 ENV MICROSERVICE_IP "0.0.0.0"
 ENV MICROSERVICE_PORT 5010
