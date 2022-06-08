@@ -6,6 +6,7 @@ from utils import Database, Data, Metadata, ObjectStorage
 from constants import Constants
 import traceback
 from horovod.ray import RayExecutor
+from ray.util import inspect_serializability
 
 
 class Parameters:
@@ -141,90 +142,6 @@ class Execution:
         self.distributed_executor = executor
         self.compile_code = compile_code
 
-    def train(self, *args, **kwargs):
-        import ray
-        import tensorflow
-        import horovod.tensorflow.keras as hvd
-        import numpy
-        hvd.init()
-
-        class InstanceTreatment:
-            __CLASS_INSTANCE_CHARACTER = "#"
-            __REMOVE_KEY_CHARACTER = ""
-
-            def __init__(self):
-                pass
-
-            def treat(self, method_parameters: []) -> []:
-                parameters = method_parameters.copy()
-                print('parameters: ', parameters)
-                iterable = parameters if isinstance(parameters, list) else parameters.items()
-                new_value = []
-                for item in iterable:
-                    new_value.append(self.__treat_value(item))
-                return new_value
-
-            def __treat_value(self, value: object) -> object:
-                if self.__is_a_class_instance(value):
-                    print('is_a_class', flush=True)
-                    return self.__get_a_class_instance(value)
-                else:
-                    return value
-
-            def __get_a_class_instance(self, class_code: str) -> object:
-                class_instance_name = "class_instance"
-                class_instance = None
-                context_variables = {}
-                print('class_code: ', class_code, flush=True)
-                class_code = class_code.replace(
-                    self.__CLASS_INSTANCE_CHARACTER,
-                    f'{class_instance_name}=')
-
-                import tensorflow
-                import horovod.tensorflow.keras as hvd
-                exec(class_code, locals(), context_variables)
-
-                return context_variables[class_instance_name]
-
-            def __is_a_class_instance(self, value: object) -> bool:
-                if type(value) != str:
-                    return False
-                else:
-                    return self.__CLASS_INSTANCE_CHARACTER in value
-
-        class ExecutionBackground:
-            def __init__(self, **kwargs):
-                print('model iniciado', flush=True)
-                self.instanceTreatment = InstanceTreatment()
-                self.model = tensorflow.keras.models.model_from_json(kwargs['model'])
-                self.model_name = kwargs['model_name']
-                self.training_parameters = dict({
-                    **kwargs['training_parameters'],
-                    'x': numpy.fromstring(kwargs['x']),
-                    'y': numpy.fromstring(kwargs['y']),
-                    'callbacks': self.instanceTreatment.treat(kwargs['callbacks'])
-                })
-                self.compile_code = kwargs['compile_code']
-                print('modelo iniciado...', self.model, flush=True)
-
-            def compile(self):
-                print('buildando...', flush=True)
-                context = {self.model_name: self.model}
-
-                if self.compile_code is not None or '':
-                    exec(self.compile_code, locals(), context)
-                    print('Model compiled', flush=True)
-                return self.model.optimizer is not None
-
-            def train(self):
-                print('treiando...', flush=True)
-                self.model.fit(**self.training_parameters)
-                return self.model.get_weights()
-
-        exe = ExecutionBackground(**kwargs)
-        exe.compile()
-        return exe.train()
-
     def create(self,
                module_path: str,
                class_name: str,
@@ -259,14 +176,23 @@ class Execution:
 
             callbacks = method_parameters['callbacks']
             del treated_parameters['callbacks']
+            compile_code = self.compile_code
+            model_name = self.parent_name
 
             print('\nmodel definition', model_definition, type(model_definition), flush=True)
-            print('\nmodel_name', self.parent_name, type(self.parent_name), flush=True)
-            print('\ntraining_parameters', treated_parameters, type(treated_parameters), flush=True)
-            print('\ncompile_code', self.compile_code, type(self.compile_code), flush=True)
+            inspect_serializability(model_definition, name="model_definition")
+            print('\nmodel_name', model_name, type(model_name), flush=True)
+            inspect_serializability(model_name, name="model_name")
+            print('\ncompile_code', compile_code, type(compile_code), flush=True)
+            inspect_serializability(compile_code, name="compile_code")
             print('\ncallbacks', callbacks, type(callbacks), flush=True)
+            inspect_serializability(callbacks, name="callbacks")
+            print('\ntraining_parameters', treated_parameters, type(treated_parameters), flush=True)
+            inspect_serializability(treated_parameters, name="treated_parameters")
 
-            method_result = self.distributed_executor.run(self.train, kwargs=dict({
+            inspect_serializability(train, name="train")
+
+            method_result = self.distributed_executor.run(train, kwargs=dict({
                 'model': model_definition,
                 'model_name': self.parent_name,
                 'training_parameters': treated_parameters,
@@ -311,3 +237,88 @@ class Execution:
                 method_result is None:
             return class_instance
         return method_result
+
+
+def train(self, *args, **kwargs):
+    import ray
+    import tensorflow
+    import horovod.tensorflow.keras as hvd
+    import numpy
+    hvd.init()
+
+    class InstanceTreatment:
+        __CLASS_INSTANCE_CHARACTER = "#"
+        __REMOVE_KEY_CHARACTER = ""
+
+        def __init__(self):
+            pass
+
+        def treat(self, method_parameters: []) -> []:
+            parameters = method_parameters.copy()
+            print('parameters: ', parameters)
+            iterable = parameters if isinstance(parameters, list) else parameters.items()
+            new_value = []
+            for item in iterable:
+                new_value.append(self.__treat_value(item))
+            return new_value
+
+        def __treat_value(self, value: object) -> object:
+            if self.__is_a_class_instance(value):
+                print('is_a_class', flush=True)
+                return self.__get_a_class_instance(value)
+            else:
+                return value
+
+        def __get_a_class_instance(self, class_code: str) -> object:
+            class_instance_name = "class_instance"
+            class_instance = None
+            context_variables = {}
+            print('class_code: ', class_code, flush=True)
+            class_code = class_code.replace(
+                self.__CLASS_INSTANCE_CHARACTER,
+                f'{class_instance_name}=')
+
+            import tensorflow
+            import horovod.tensorflow.keras as hvd
+            exec(class_code, locals(), context_variables)
+
+            return context_variables[class_instance_name]
+
+        def __is_a_class_instance(self, value: object) -> bool:
+            if type(value) != str:
+                return False
+            else:
+                return self.__CLASS_INSTANCE_CHARACTER in value
+
+    class ExecutionBackground:
+        def __init__(self, **kwargs):
+            print('model iniciado', flush=True)
+            self.instanceTreatment = InstanceTreatment()
+            self.model = tensorflow.keras.models.model_from_json(kwargs['model'])
+            self.model_name = kwargs['model_name']
+            self.training_parameters = dict({
+                **kwargs['training_parameters'],
+                'x': numpy.fromstring(kwargs['x']),
+                'y': numpy.fromstring(kwargs['y']),
+                'callbacks': self.instanceTreatment.treat(kwargs['callbacks'])
+            })
+            self.compile_code = kwargs['compile_code']
+            print('modelo iniciado...', self.model, flush=True)
+
+        def compile(self):
+            print('buildando...', flush=True)
+            context = {self.model_name: self.model}
+
+            if self.compile_code is not None or '':
+                exec(self.compile_code, locals(), context)
+                print('Model compiled', flush=True)
+            return self.model.optimizer is not None
+
+        def train(self):
+            print('treiando...', flush=True)
+            self.model.fit(**self.training_parameters)
+            return self.model.get_weights()
+
+    exe = ExecutionBackground(**kwargs)
+    exe.compile()
+    return exe.train()
