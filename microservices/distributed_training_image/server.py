@@ -89,6 +89,25 @@ def create_execution() -> jsonify:
     )
 
 
+@app.route(Constants.MICROSERVICE_URI_BUILDER_PATH, methods=["POST"])
+def builder_execution() -> jsonify:
+    settings = RayExecutor.create_settings(timeout_s=360, placement_group_timeout_s=360)
+    executor = RayExecutor(settings, num_hosts=2, num_workers_per_host=1, cpus_per_worker=1, use_gpu=False)
+
+    service_type = request.args.get(Constants.TYPE_FIELD_NAME)
+    build_name = request.json[Constants.BUILD_NAME_FIELD_NAME]
+    code = request.json[Constants.CODE_FIELD_NAME]
+
+    return (
+        jsonify({
+            Constants.MESSAGE_RESULT:
+                f'{Constants.MICROSERVICE_URI_SWITCHER[service_type]}'
+                f'{build_name}{Constants.MICROSERVICE_URI_GET_PARAMS}',
+        }),
+        Constants.HTTP_STATUS_CODE_SUCCESS_CREATED,
+    )
+
+
 @app.route(f'{Constants.MICROSERVICE_URI_PATH}/<filename>', methods=["DELETE"])
 def delete_default_model(filename: str) -> jsonify:
     service_type = request.args.get(Constants.TYPE_FIELD_NAME)
