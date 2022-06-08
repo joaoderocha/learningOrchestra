@@ -8,7 +8,9 @@ import ray
 from horovod.ray import RayExecutor
 import horovod.tensorflow.keras as hvd
 
-ray.init(address=f'{os.environ["NODE_IP_ADDRESS"]}:{os.environ["HOST_PORT"]}')
+address = f'{os.environ["NODE_IP_ADDRESS"]}:{os.environ["HOST_PORT"]}'
+
+ray.init(address=address)
 
 hvd.init()
 
