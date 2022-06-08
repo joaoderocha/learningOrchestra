@@ -13,7 +13,7 @@ ray.init(address=f'{os.environ["NODE_IP_ADDRESS"]}:{os.environ["HOST_PORT"]}')
 hvd.init()
 
 settings = RayExecutor.create_settings(timeout_s=360, placement_group_timeout_s=360)
-executor = RayExecutor(settings, num_workers=2, use_gpu=False)
+executor = RayExecutor(settings, num_hosts=2, num_workers_per_host=1, cpus_per_worker=1, use_gpu=False)
 
 app = Flask(__name__)
 
