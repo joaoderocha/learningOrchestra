@@ -337,6 +337,8 @@ services:
         published: 4502
         protocol: tcp
         mode: host
+      - target: 10001
+        published: 10001
     depends_on:
       - databaseprimary
       - images
