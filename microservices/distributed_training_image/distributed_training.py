@@ -287,7 +287,7 @@ class Execution:
             method_result = self.distributed_executor.execute_single(lambda worker: worker.train())
 
             print('method_results', method_result, f'\n len: {len(method_result)}', flush=True)
-            
+
             self.__execute_a_object_method(model_instance, 'set_weights', dict({'weights': method_result[0]}))
             print('saving results to model...', flush=True)
             self.__storage.save(method_result, self.executor_name,
