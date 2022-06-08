@@ -361,8 +361,7 @@ services:
       - "code_executor:/code_executions"
 
   rayworker:
-    build: microservices/ray_worker_image
-    image: 127.0.0.1:5050/ray_worker
+    image: camazaqui/ray_worker:latest
     ports:
       - target: 4501
         published: 4501

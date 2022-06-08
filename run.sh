@@ -17,7 +17,7 @@ echo "--------------------------------------------------------------------"
 echo '{
   "insecure-registries" : ["myregistry:5050"]
 }
-' > /etc/docker/daemon.json
+' >/etc/docker/daemon.json
 
 echo "--------------------------------------------------------------------"
 echo "Restarting docker service..."
@@ -45,7 +45,6 @@ echo "--------------------------------------------------------------------"
 
 docker push $gateway_api_repository
 
-
 binary_executor_repository=127.0.0.1:5050/binary_executor
 
 echo "--------------------------------------------------------------------"
@@ -53,28 +52,17 @@ echo "Pushing binary_executor microservice image..."
 echo "--------------------------------------------------------------------"
 docker push $binary_executor_repository
 
-
 distributed_training_repository=127.0.0.1:5050/distributed_training
-
 
 echo "--------------------------------------------------------------------"
 echo "Pushing distributedTraining microservice image..."
 echo "--------------------------------------------------------------------"
 docker push $distributed_training_repository
 
-
-ray_worker_repository=127.0.0.1:5050/ray_worker
-
-echo "--------------------------------------------------------------------"
-echo "Pushing ray_worker microservice image..."
-echo "--------------------------------------------------------------------"
-docker push $ray_worker_repository
-
-
 echo "--------------------------------------------------------------------"
 echo "Updating portainer agent microservice in each cluster node..."
 echo "--------------------------------------------------------------------"
-docker service update --image portainer/agent  microservice_agent
+docker service update --image portainer/agent microservice_agent
 
 echo "--------------------------------------------------------------------"
 echo "End."
