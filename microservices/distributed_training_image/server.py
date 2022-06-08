@@ -8,12 +8,9 @@ import ray
 from horovod.ray import RayExecutor
 import horovod.tensorflow.keras as hvd
 
-ray.init(address=f'{os.environ["NODE_IP_ADDRESS"]}:{os.environ["HOST_PORT"]}', resources={'CPU': 0})
+ray.init(address=f'{os.environ["NODE_IP_ADDRESS"]}:{os.environ["HOST_PORT"]}')
 
 hvd.init()
-
-settings = RayExecutor.create_settings(timeout_s=360, placement_group_timeout_s=360)
-executor = RayExecutor(settings, num_hosts=2, num_workers_per_host=1, cpus_per_worker=1, use_gpu=False)
 
 app = Flask(__name__)
 
@@ -33,6 +30,9 @@ parameters_handler = Parameters(database, data)
 
 @app.route(Constants.MICROSERVICE_URI_PATH, methods=["POST"])
 def create_execution() -> jsonify:
+    settings = RayExecutor.create_settings(timeout_s=360, placement_group_timeout_s=360)
+    executor = RayExecutor(settings, num_hosts=2, num_workers_per_host=1, cpus_per_worker=1, use_gpu=False)
+
     service_type = request.args.get(Constants.TYPE_FIELD_NAME)
     model_name = request.json[Constants.MODEL_NAME_FIELD_NAME]
     parent_name = request.json[Constants.PARENT_NAME_FIELD_NAME]
