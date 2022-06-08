@@ -277,30 +277,26 @@ class Execution:
 
             inspect_serializability(train, name="train")
 
-            inspect_serializability(dict({
+            kwargs = {
                 'model': model_definition,
                 'model_name': self.parent_name,
                 'training_parameters': treated_parameters,
                 'compile_code': self.compile_code,
                 'callbacks': callbacks,
-            }))
+            }
 
-            # method_result = self.distributed_executor.run(train, kwargs=dict({
-            #     'model': model_definition,
-            #     'model_name': self.parent_name,
-            #     'training_parameters': treated_parameters,
-            #     'compile_code': self.compile_code,
-            #     'callbacks': callbacks,
-            # }))
-            #
-            # print('method_results', method_result, f'\n len: {len(method_result)}', flush=True)
-            # self.__execute_a_object_method(model_instance, 'set_weights', dict({'weights': method_result[0]}))
-            # print('saving results to model...', flush=True)
-            # self.__storage.save(method_result, self.executor_name,
-            #                     self.executor_service_type)
-            # print('updating flag...', flush=True)
-            # self.__metadata_creator.update_finished_flag(self.executor_name,
-            #                                              flag=True)
+            inspect_serializability(kwargs, name='kwargs')
+
+            method_result = self.distributed_executor.run(train, kwargs=kwargs)
+
+            print('method_results', method_result, f'\n len: {len(method_result)}', flush=True)
+            self.__execute_a_object_method(model_instance, 'set_weights', dict({'weights': method_result[0]}))
+            print('saving results to model...', flush=True)
+            self.__storage.save(method_result, self.executor_name,
+                                self.executor_service_type)
+            print('updating flag...', flush=True)
+            self.__metadata_creator.update_finished_flag(self.executor_name,
+                                                         flag=True)
 
         except Exception as exception:
             print('error', exception, flush=True)
