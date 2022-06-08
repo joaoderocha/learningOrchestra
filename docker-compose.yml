@@ -362,7 +362,7 @@ services:
 
   rayworker:
     build: microservices/ray_worker_image
-    image: camazaqui/ray_worker
+    image: camazaqui/ray-worker:latest
     ports:
       - target: 4501
         published: 4501
