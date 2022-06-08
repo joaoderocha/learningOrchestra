@@ -5,7 +5,7 @@ from typing import List
 from numpy import array2string, ndarray, fromstring
 from horovod import ray
 
-from microservices.distributed_training_image.training_wrapper import train
+from training_wrapper import train
 from utils import Database, Data, Metadata, ObjectStorage
 from constants import Constants
 import traceback
