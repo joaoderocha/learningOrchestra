@@ -188,7 +188,12 @@ class Execution:
             del treated_parameters['callbacks']
             compile_code = self.compile_code
             model_name = self.parent_name
-            model = tensorflow.keras.models.model_from_json(model_definition)
+
+            model = tensorflow.keras.models.Sequential(layers=[
+                tensorflow.keras.layers.Flatten(input_shape=(28, 28)),
+                tensorflow.keras.layers.Dense(128, activation='relu'),
+                tensorflow.keras.layers.Dense(10, activation='softmax'),
+            ])
 
             model.compile(
                 optimizer=tensorflow.keras.optimizers.Adam(0.001),
