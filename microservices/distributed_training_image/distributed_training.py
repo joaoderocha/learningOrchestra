@@ -4,7 +4,7 @@ from numpy import array2string, ndarray
 from utils import Database, Data, Metadata, ObjectStorage
 from constants import Constants
 import traceback
-from microservices.distributed_training_image.training_function import train_function
+from training_function import train_function
 from horovod.ray import RayExecutor
 from ray.util import inspect_serializability
 
