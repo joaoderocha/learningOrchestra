@@ -4,7 +4,7 @@ from numpy import array2string, ndarray
 from utils import Database, Data, Metadata, ObjectStorage
 from constants import Constants
 import traceback
-from training_function import train_function
+from training_function.train_function import train
 from horovod.ray import RayExecutor
 from ray.util import inspect_serializability
 
@@ -197,7 +197,7 @@ class Execution:
             print('\ntraining_parameters', treated_parameters, type(treated_parameters), flush=True)
             inspect_serializability(treated_parameters, name="treated_parameters")
 
-            inspect_serializability(train_function.train, name="func")
+            inspect_serializability(train, name="func")
 
             kwargs = dict({
                 'model': model_definition,
@@ -209,7 +209,7 @@ class Execution:
 
             inspect_serializability(kwargs, name='kwargs')
 
-            method_result = self.distributed_executor.run(train_function.train, kwargs=kwargs)
+            method_result = self.distributed_executor.run(train, kwargs=kwargs)
 
             print('method_results', method_result, f'\n len: {len(method_result)}', flush=True)
 
