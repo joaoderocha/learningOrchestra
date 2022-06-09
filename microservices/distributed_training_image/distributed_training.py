@@ -10,9 +10,8 @@ import traceback
 from horovod.ray import RayExecutor
 from ray.util import inspect_serializability
 
-function_code = """
+
 def train(*args, **kwargs):
-    import ray
     import tensorflow
     import horovod.tensorflow.keras as hvd
     import numpy
@@ -94,7 +93,6 @@ def train(*args, **kwargs):
     exe = ExecutionBackground(**kwargs)
     exe.compile()
     return exe.train()
-"""
 
 
 class Parameters:
@@ -254,13 +252,13 @@ class Execution:
                    description: str) -> None:
         try:
 
-            tree = ast.parse(function_code)
-
-            if len(tree.body) != 1 or not isinstance(tree.body[0], ast.FunctionDef):
-                raise ValueError("provided code fragment is not a single function")
-
-            comp = compile(function_code, filename="file.py", mode="single")
-            func = types.FunctionType(comp.co_consts[0], {})
+            # tree = ast.parse(function_code)
+            #
+            # if len(tree.body) != 1 or not isinstance(tree.body[0], ast.FunctionDef):
+            #     raise ValueError("provided code fragment is not a single function")
+            #
+            # comp = compile(function_code, filename="file.py", mode="single")
+            # func = types.FunctionType(comp.co_consts[0], {})
 
             importlib.import_module(module_path)
             print('Starting executor...', flush=True)
@@ -287,7 +285,7 @@ class Execution:
             print('\ntraining_parameters', treated_parameters, type(treated_parameters), flush=True)
             inspect_serializability(treated_parameters, name="treated_parameters")
 
-            inspect_serializability(func, name="func")
+            inspect_serializability(train, name="func")
 
             kwargs = dict({
                 'model': model_definition,
@@ -299,7 +297,7 @@ class Execution:
 
             inspect_serializability(kwargs, name='kwargs')
 
-            method_result = self.distributed_executor.run(func, kwargs=kwargs)
+            method_result = self.distributed_executor.run(train, kwargs=kwargs)
 
             print('method_results', method_result, f'\n len: {len(method_result)}', flush=True)
 
