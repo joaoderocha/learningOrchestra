@@ -47,13 +47,13 @@ class Parameters:
                     dataset_name, object_name)
                 print('\ntipo', type(a), flush=True)
 
-                return array2string(a) if isinstance(a, ndarray) else a
+                return a
             else:
                 a = self.__data.get_dataset_content(
                     dataset_name)
                 print('\ntipo', type(a), flush=True)
 
-                return array2string(a) if isinstance(a, ndarray) else a
+                return a
         elif self.__is_a_class_instance(value):
             print('\nis_a_class', flush=True)
             return self.__get_a_class_instance(value)
