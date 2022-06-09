@@ -33,7 +33,7 @@ parameters_handler = Parameters(database, data)
 @app.route(Constants.MICROSERVICE_URI_PATH, methods=["POST"])
 def create_execution() -> jsonify:
     settings = RayExecutor.create_settings(timeout_s=360, placement_group_timeout_s=360)
-    executor = RayExecutor(settings, num_hosts=2, num_workers_per_host=1, cpus_per_worker=1, use_gpu=False)
+    executor = RayExecutor(settings, num_workers_per_host=1, num_hosts=2, use_gpu=False, cpus_per_worker=1)
 
     service_type = request.args.get(Constants.TYPE_FIELD_NAME)
     model_name = request.json[Constants.MODEL_NAME_FIELD_NAME]
