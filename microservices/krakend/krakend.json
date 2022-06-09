@@ -1772,7 +1772,7 @@
         {
           "encoding": "no-op",
           "method": "POST",
-          "url_pattern": "/distributedTraining?type=train/horovod",
+          "url_pattern": "/distributedTraining?type=train/tensorflow",
           "host": [
             "http://distributedtraining:5010"
           ],
@@ -1788,9 +1788,9 @@
         {
           "encoding": "no-op",
           "method": "POST",
-          "url_pattern": "/models",
+          "url_pattern": "/builderHorovod?type=builder/horovod",
           "host": [
-            "http://builder:5002"
+            "http://builderHorovod:5010"
           ],
           "extra_config": {}
         }
