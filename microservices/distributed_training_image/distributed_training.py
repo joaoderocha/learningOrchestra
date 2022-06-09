@@ -7,6 +7,7 @@ import traceback
 from training_function.train_function import train
 from horovod.ray import RayExecutor
 from ray.util import inspect_serializability
+import tensorflow
 
 
 class Parameters:
@@ -187,6 +188,13 @@ class Execution:
             del treated_parameters['callbacks']
             compile_code = self.compile_code
             model_name = self.parent_name
+            model = tensorflow.keras.models.Sequential()
+
+            model.compile(
+                optimizer=tensorflow.keras.optimizers.Adam(0.001),
+                loss=tensorflow.keras.losses.SparseCategoricalCrossentropy(),
+                metrics=[tensorflow.keras.metrics.SparseCategoricalAccuracy()],
+            )
 
             print('\nmodel definition', model_definition, type(model_definition), flush=True)
             inspect_serializability(model_definition, name="model_definition")
@@ -211,11 +219,14 @@ class Execution:
 
             inspect_serializability(kwargs, name='kwargs')
 
-            method_result = self.distributed_executor.run(train, kwargs=kwargs)
+            model.fit(x=treated_parameters['x'], y=treated_parameters['y'], validation_split=0.1,
+                      epochs=5)  # self.distributed_executor.run(train, kwargs=kwargs)
+
+            method_result = model.get_weights()
 
             print('method_results', method_result, f'\n len: {len(method_result)}', flush=True)
 
-            self.__execute_a_object_method(model_instance, 'set_weights', dict({'weights': method_result[0]}))
+            self.__execute_a_object_method(model_instance, 'set_weights', dict({'weights': method_result}))
             print('saving results to model...', flush=True)
             self.__storage.save(method_result, self.executor_name,
                                 self.executor_service_type)
