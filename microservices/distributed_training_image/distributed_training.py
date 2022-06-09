@@ -177,7 +177,7 @@ class Execution:
 
             importlib.import_module(module_path)
             print('Starting executor...', flush=True)
-            self.distributed_executor.start()
+            # self.distributed_executor.start()
             print('executor ready...', flush=True)
             model_instance = self.__storage.read(self.parent_name,
                                                  self.parent_name_service_type)
