@@ -9,8 +9,8 @@ from horovod.ray import RayExecutor
 import horovod.tensorflow.keras as hvd
 
 address = f'{os.environ["NODE_IP_ADDRESS"]}:{os.environ["HOST_PORT"]}'
-
-ray.init(address=address)
+runtime_env = {"working_dir": "microservices/distributed_training_image"}
+ray.init(address=address, runtime_env=runtime_env)
 
 hvd.init()
 
