@@ -11,7 +11,7 @@ from horovod.ray import RayExecutor
 from ray.util import inspect_serializability
 
 function_code = """
-def train(self, *args, **kwargs):
+def train(*args, **kwargs):
     import ray
     import tensorflow
     import horovod.tensorflow.keras as hvd
