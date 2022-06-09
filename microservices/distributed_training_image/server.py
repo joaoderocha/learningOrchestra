@@ -9,7 +9,7 @@ from horovod.ray import RayExecutor
 import horovod.tensorflow.keras as hvd
 
 address = f'{os.environ["NODE_IP_ADDRESS"]}:{os.environ["HOST_PORT"]}'
-runtime_env = {"py_modules": "train_function"}
+runtime_env = {"py_modules": "train_function", "pip": "./requirements.txt"}
 ray.init(address=address, runtime_env=runtime_env)
 
 hvd.init()
