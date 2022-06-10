@@ -62,7 +62,7 @@ class Parameters:
             f'{class_instance_name}=')
 
         import tensorflow
-        import horovod.tensorflow.keras as hvd
+        # import horovod.tensorflow.keras as hvd
         exec(class_code, locals(), context_variables)
 
         return context_variables[class_instance_name]
@@ -216,15 +216,15 @@ class DistributedExecution(Execution):
         model_definition = model_instance.to_json()
         treated_parameters = self.__parameters_handler.treat(method_parameters)
 
-        callbacks = method_parameters['callbacks']
-        del treated_parameters['callbacks']
+        # callbacks = method_parameters['callbacks']
+        # del treated_parameters['callbacks']
 
         kwargs = dict({
             'model': model_definition,
             'model_name': self.parent_name,
             'training_parameters': treated_parameters,
             'compile_code': self.compile_code,
-            'callbacks': callbacks,
+            # 'callbacks': callbacks,
         })
 
         model = tensorflow.keras.models.Sequential(layers=[
