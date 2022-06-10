@@ -298,7 +298,7 @@ services:
       - DATABASE_PORT=27017
       - DATABASE_REPLICA_SET=replica_set
       - DATABASE_NAME=database
-      - NODE_IP_ADDRESS=ray-head
+      - NODE_IP_ADDRESS=ray://ray-head
       - HOST_PORT=6379
     volumes:
       - "model:/models"
