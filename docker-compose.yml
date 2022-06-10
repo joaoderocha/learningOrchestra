@@ -293,7 +293,10 @@ services:
       - database
       - ray_net
     environment:
-      - <<*default-service-database-env
+      - DATABASE_URL=mongodb://root:owl45#21@databaseprimary,databasesecondary
+      - DATABASE_PORT=27017
+      - DATABASE_REPLICA_SET=replica_set
+      - DATABASE_NAME=database
       - NODE_IP_ADDRESS=ray-head
       - HOST_PORT=6379
     volumes:
