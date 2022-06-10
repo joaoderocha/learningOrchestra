@@ -283,7 +283,7 @@ services:
     image: 127.0.0.1:5050/binary_executor
     ports:
       - "5008:5008"
-      - "6501-7000:6501-7000"
+      - "6000-7000:6000-7000"
     depends_on:
       - databaseprimary
       - images
