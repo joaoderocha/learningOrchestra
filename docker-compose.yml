@@ -290,7 +290,10 @@ services:
     deploy: *default-deploy-manager
     networks:
       - database
-    environment: *default-service-database-env
+    environment:
+      - <<*default-service-database-env
+      - NODE_IP_ADDRESS=distributedtraining
+      - HOST_PORT=6379
     volumes:
       - "model:/models"
       - "binary_executor:/binaries"

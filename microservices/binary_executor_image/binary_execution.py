@@ -262,12 +262,12 @@ class DistributedExecution(Execution):
 
 
 class DistributedBuilderExecution(Execution):
-    def __init__(self, database_connector: Database, executor_name: str, executor_service_type: str, parent_name: str,
-                 parent_name_service_type: str, metadata_creator: Metadata,
+    def __init__(self, database_connector: Database, executor_name: str, executor_service_type: str,
+                 metadata_creator: Metadata,
                  parameters_handler: Parameters, storage: ObjectStorage, ray_executor: RayExecutor, code: str,
                  monitoring_path: str = ''):
-        super().__init__(database_connector, executor_name, executor_service_type, parent_name,
-                         parent_name_service_type, metadata_creator, '', parameters_handler, storage)
+        super().__init__(database_connector, executor_name, executor_service_type, '',
+                         '', metadata_creator, '', parameters_handler, storage)
         self.distributed_executor = ray_executor
         self.code = code
         self.monitoring_path = monitoring_path

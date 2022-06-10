@@ -255,7 +255,6 @@ def create_builder_horovod() -> jsonify:
     # executor = RayExecutor(settings, num_workers_per_host=1, num_hosts=2, use_gpu=False, cpus_per_worker=1)
     print('dist execution', flush=True)
     service_type = request.args.get(Constants.TYPE_FIELD_NAME)
-    parent_name = request.json[Constants.PARENT_NAME_FIELD_NAME]
     filename = request.json[Constants.NAME_FIELD_NAME]
     description = request.json[Constants.DESCRIPTION_FIELD_NAME]
     method_parameters = request.json[Constants.METHOD_PARAMETERS_FIELD_NAME]
@@ -266,14 +265,10 @@ def create_builder_horovod() -> jsonify:
     except Exception:
         pass
 
-    parent_name_service_type = data.get_type(parent_name)
-
     train_model = DistributedBuilderExecution(
         database,
         filename,
         service_type,
-        parent_name,
-        parent_name_service_type,
         metadata_creator,
         parameters_handler,
         storage,
@@ -282,8 +277,8 @@ def create_builder_horovod() -> jsonify:
         monitoring_path
     )
 
-    train_model.create(filename,
-                       code, monitoring_path, method_parameters, description)
+    train_model.build(filename,
+                      code, monitoring_path, method_parameters, description)
 
     return (
         jsonify({
