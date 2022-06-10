@@ -337,7 +337,7 @@ services:
     deploy:
       placement:
         constraints:
-          - "node.role==worker"
+          - "node.role==manager"
       resources:
         limits:
           cpus: '1'
@@ -353,11 +353,10 @@ services:
     command: bash -c "ray start --address=ray-head:6379 --redis-password=passwd --num-cpus=2 --block"
     shm_size: 2g
     deploy:
-      mode: global
       replicas: 2
       placement:
         constraints:
-          - "node.role==manager"
+          - "node.role==worker"
       resources:
         limits:
           cpus: '2'
