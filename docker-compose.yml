@@ -284,7 +284,7 @@ services:
     ports:
       - "5008:5008"
       - "6000-6370:6000-6370"
-      - "6371-7000:6371-7000"
+      - "6381-7000:6381-7000"
     depends_on:
       - databaseprimary
       - images
@@ -294,7 +294,7 @@ services:
       - ray_net
     environment:
       - <<*default-service-database-env
-      - NODE_IP_ADDRESS=distributedtraining
+      - NODE_IP_ADDRESS=ray-head
       - HOST_PORT=6379
     volumes:
       - "model:/models"
