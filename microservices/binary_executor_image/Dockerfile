@@ -11,10 +11,9 @@ RUN apt-get -y install cmake gcc g++
 
 RUN pip install -r requirements.txt
 
-RUN pip install -U "ray[default]"
-
 RUN HOROVOD_WITH_GLOO=1 HOROVOD_WITHOUT_MPI=1 HOROVOD_WITH_TENSORFLOW=1 pip install 'horovod[ray,tensorflow,keras]'
 
+RUN pip install -U 'ray[default]'
 
 
 ENV MICROSERVICE_IP "0.0.0.0"

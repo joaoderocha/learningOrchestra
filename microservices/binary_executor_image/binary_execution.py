@@ -5,7 +5,7 @@ from constants import Constants
 from horovod.ray import RayExecutor
 import tensorflow
 import traceback
-from microservices.binary_executor_image.training_function.train_function import train
+from training_function.train_function import train
 
 
 class Parameters:
