@@ -323,9 +323,9 @@ services:
   ray-head:
     image: rayproject/ray:latest-cpu
     ports:
-      - "${REDISPORT}:${REDISPORT}"
-      - "${DASHBOARDPORT}:${DASHBOARDPORT}"
-      - "${HEADNODEPORT}:${HEADNODEPORT}"
+      - "6379:6379"
+      - "8265:8265"
+      - "10001:10001"
     env_file:
       - .env
     command: bash -c "ray start --head --dashboard-port=${DASHBOARDPORT} --port=${REDISPORT} --dashboard-host=0.0.0.0 --redis-password=${REDISPASSWORD} --block"
