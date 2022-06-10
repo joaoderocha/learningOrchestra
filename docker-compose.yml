@@ -326,7 +326,7 @@ services:
       - database
     environment: *default-service-database-env
   ray-head:
-    image: rayproject/ray:latest-cpu
+    image: camazaqui/ray-horovod:latest
     ports:
       - "6379:6379"
       - "8265:8265"
@@ -346,7 +346,7 @@ services:
     networks:
       - ray_net
   ray-worker:
-    image: rayproject/ray:latest-cpu
+    image: camazaqui/ray-horovod:latest
     depends_on:
       - ray-head
     env_file:
