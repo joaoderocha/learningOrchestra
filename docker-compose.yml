@@ -319,7 +319,40 @@ services:
     networks:
       - database
     environment: *default-service-database-env
-
+  ray-head:
+    image: ${RAY_IMAGE}
+    ports:
+      - "${REDISPORT}:${REDISPORT}"
+      - "${DASHBOARDPORT}:${DASHBOARDPORT}"
+      - "${HEADNODEPORT}:${HEADNODEPORT}"
+    env_file:
+      - .env
+    command: bash -c "ray start --head --dashboard-port=${DASHBOARDPORT} --port=${REDISPORT} --dashboard-host=0.0.0.0 --redis-password=${REDISPASSWORD} --block"
+    shm_size: 2g
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: '2g'
+    networks:
+      - ray_net
+  ray-worker:
+    image: ${RAY_IMAGE}
+    depends_on:
+      - ray-head
+    env_file:
+      - .env
+    command: bash -c "ray start --address=ray-head:${REDISPORT} --redis-password=${REDISPASSWORD} --num-cpus=${NUM_CPU_WORKER} --block"
+    shm_size: 2g
+    deploy:
+      mode: replicated
+      replicas: ${NUM_WORKERS}
+      resources:
+        limits:
+          cpus: ${NUM_CPU_WORKER}
+          memory: '2g'
+    networks:
+      - ray_net
 #  distributedtraining:
 #    build: microservices/distributed_training_image
 #    image: 127.0.0.1:5050/distributed_training
@@ -364,6 +397,7 @@ services:
 #      - "binary_executor:/binaries"
 #      - "database_executor:/transform"
 #      - "code_executor:/code_executions"
+#    entrypoint: ray start --head --port="$HOST_PORT" --object-manager-port="$OBJECT_MANAGER_PORT" --node-manager-port="$NODE_MANAGER_PORT" --node-ip-address="$NODE_IP_ADDRESS" --dashboard-port="$DASHBOARD_PORT" --dashboard-host 0.0.0.0 --num-cpus=0 --block
 #
 #  rayworker:
 #    build: microservices/ray_worker_image
@@ -401,7 +435,11 @@ networks:
   database:
   spark:
   portainer:
-#  ray:
+  ray_net:
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.63.0.0/16
 
 volumes:
   images:
