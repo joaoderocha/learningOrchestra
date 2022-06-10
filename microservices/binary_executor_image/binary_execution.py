@@ -29,8 +29,10 @@ class Parameters:
                 for item in value:
                     new_value.append(self.__treat_value(item))
                 parameters[name] = new_value
+                print('parameter:', name, 'type: ', type(parameters['name']), flush=True)
             else:
                 parameters[name] = self.__treat_value(value)
+                print('parameter:', name, 'type: ', type(parameters['name']), flush=True)
 
         return parameters
 

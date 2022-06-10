@@ -252,7 +252,7 @@ def create_distributed_execution() -> jsonify:
 
 @app.route(Constants.MICROSERVICE_DISTRIBUTED_BUILDER_URI_PATH, methods=['POST'])
 def create_builder_horovod() -> jsonify:
-    print('dist execution', flush=True)
+    print('builder execution', flush=True)
     service_type = request.args.get(Constants.TYPE_FIELD_NAME)
     filename = request.json[Constants.NAME_FIELD_NAME]
     description = request.json[Constants.DESCRIPTION_FIELD_NAME]
@@ -263,7 +263,7 @@ def create_builder_horovod() -> jsonify:
         monitoring_path = request.json[Constants.MONITORING_PATH_FIELD_NAME]
     except Exception:
         pass
-
+    print(service_type, filename, description, method_parameters, code, monitoring_path, flush=True)
     train_model = DistributedBuilderExecution(
         database,
         filename,
@@ -275,7 +275,7 @@ def create_builder_horovod() -> jsonify:
         code,
         monitoring_path
     )
-
+    print('criei executor')
     train_model.build(filename,
                       code, monitoring_path, method_parameters, description)
 

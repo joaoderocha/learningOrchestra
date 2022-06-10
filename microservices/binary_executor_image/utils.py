@@ -50,6 +50,7 @@ class Database:
             projection=database_projection_query))
 
     def insert_one_in_file(self, filename: str, json_object: dict) -> None:
+        print(filename, json_object, flush=True)
         file_collection = self.__database[filename]
         file_collection.insert_one(json_object)
 
