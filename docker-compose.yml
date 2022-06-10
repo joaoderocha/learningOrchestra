@@ -290,6 +290,7 @@ services:
     deploy: *default-deploy-manager
     networks:
       - database
+      - ray_net
     environment:
       - <<*default-service-database-env
       - NODE_IP_ADDRESS=distributedtraining
@@ -330,6 +331,9 @@ services:
     command: bash -c "ray start --head --dashboard-port=${DASHBOARDPORT} --port=${REDISPORT} --dashboard-host=0.0.0.0 --redis-password=${REDISPASSWORD} --block"
     shm_size: 2g
     deploy:
+      placement:
+        constraints:
+          - "node.role==worker"
       resources:
         limits:
           cpus: '1'
@@ -345,11 +349,13 @@ services:
     command: bash -c "ray start --address=ray-head:${REDISPORT} --redis-password=${REDISPASSWORD} --num-cpus=${NUM_CPU_WORKER} --block"
     shm_size: 2g
     deploy:
-      mode: replicated
-      replicas: ${NUM_WORKERS}
+      mode: global
+      placement:
+        constraints:
+          - "node.role==manager"
       resources:
         limits:
-          cpus: ${NUM_CPU_WORKER}
+          cpus: 2
           memory: '2g'
     networks:
       - ray_net
