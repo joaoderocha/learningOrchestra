@@ -1,4 +1,6 @@
+import ast
 import importlib
+import types
 from concurrent.futures import ThreadPoolExecutor
 from utils import Database, Data, Metadata, ObjectStorage
 from constants import Constants
@@ -62,7 +64,7 @@ class Parameters:
             f'{class_instance_name}=')
 
         import tensorflow
-        # import horovod.tensorflow.keras as hvd
+        import horovod.tensorflow.keras as hvd
         exec(class_code, locals(), context_variables)
 
         return context_variables[class_instance_name]
@@ -198,53 +200,111 @@ class Execution:
 class DistributedExecution(Execution):
     def __init__(self, database_connector: Database, executor_name: str, executor_service_type: str, parent_name: str,
                  parent_name_service_type: str, metadata_creator: Metadata, class_method: str,
-                 parameters_handler: Parameters, storage: ObjectStorage, ray_executor=None, compile_code: str = ''):
+                 parameters_handler: Parameters, storage: ObjectStorage, ray_executor: RayExecutor,
+                 compile_code: str = '',
+                 monitoring_path: str = ''):
         super().__init__(database_connector, executor_name, executor_service_type, parent_name,
                          parent_name_service_type, metadata_creator, class_method, parameters_handler, storage)
 
         self.distributed_executor = ray_executor
         self.compile_code = compile_code
+        self.monitoring_path = monitoring_path
 
     def __pipeline(self,
                    module_path: str,
                    method_parameters: dict,
                    description: str) -> None:
-        importlib.import_module(module_path)
-        model_instance = self.__storage.read(self.parent_name,
-                                             self.parent_name_service_type)
+        try:
+            self.distributed_executor.start()
+            importlib.import_module(module_path)
+            model_instance = self.__storage.read(self.parent_name,
+                                                 self.parent_name_service_type)
 
-        model_definition = model_instance.to_json()
-        treated_parameters = self.__parameters_handler.treat(method_parameters)
+            model_definition = model_instance.to_json()
+            treated_parameters = self.__parameters_handler.treat(method_parameters)
 
-        # callbacks = method_parameters['callbacks']
-        # del treated_parameters['callbacks']
+            callbacks = method_parameters['callbacks']
+            rank0callbacks = method_parameters['rank0callbacks']
+            del treated_parameters['callbacks']
+            del treated_parameters['rank0callbacks']
 
-        kwargs = dict({
-            'model': model_definition,
-            'model_name': self.parent_name,
-            'training_parameters': treated_parameters,
-            'compile_code': self.compile_code,
-            # 'callbacks': callbacks,
-        })
+            kwargs = dict({
+                'model': model_definition,
+                'model_name': self.parent_name,
+                'training_parameters': treated_parameters,
+                'compile_code': self.compile_code,
+                'callbacks': callbacks,
+                'rank0callbacks': rank0callbacks,
+                'monitoring_path': self.monitoring_path
+            })
 
-        model = tensorflow.keras.models.Sequential(layers=[
-            tensorflow.keras.layers.Flatten(input_shape=(28, 28)),
-            tensorflow.keras.layers.Dense(128, activation='relu'),
-            tensorflow.keras.layers.Dense(10, activation='softmax'),
-        ])
+            method_result = self.distributed_executor.run(train, kwargs=kwargs)
 
-        model.compile(
-            optimizer=tensorflow.keras.optimizers.Adam(0.001),
-            loss=tensorflow.keras.losses.SparseCategoricalCrossentropy(),
-            metrics=[tensorflow.keras.metrics.SparseCategoricalAccuracy()],
+            self.__execute_a_object_method(model_instance, 'set_weights', dict({'weights': method_result[0]}))
+
+            self.__storage.save(method_result, self.executor_name,
+                                self.executor_service_type)
+            self.__metadata_creator.update_finished_flag(self.executor_name,
+                                                         flag=True)
+        except Exception as exception:
+            traceback.print_exc()
+            self.__metadata_creator.create_execution_document(
+                self.executor_name,
+                description,
+                method_parameters,
+                repr(exception))
+            return None
+
+        self.__metadata_creator.create_execution_document(self.executor_name,
+                                                          description,
+                                                          method_parameters,
+                                                          )
+
+
+class DistributedBuilderExecution(Execution):
+    def __init__(self, database_connector: Database, executor_name: str, executor_service_type: str, parent_name: str,
+                 parent_name_service_type: str, metadata_creator: Metadata,
+                 parameters_handler: Parameters, storage: ObjectStorage, ray_executor: RayExecutor, code: str,
+                 monitoring_path: str = ''):
+        super().__init__(database_connector, executor_name, executor_service_type, parent_name,
+                         parent_name_service_type, metadata_creator, '', parameters_handler, storage)
+        self.distributed_executor = ray_executor
+        self.code = code
+        self.monitoring_path = monitoring_path
+
+    def build(self,
+              name: str,
+              code: str,
+              monitoring_path: str,
+              method_parameters: dict,
+              description: str) -> None:
+        self.__database_connector.insert_one_in_file(
+            name,
+            dict({'code': code, 'monitoring_path': monitoring_path, 'description': description})
         )
 
-        model.fit(x=treated_parameters['x'], y=treated_parameters['y'], validation_split=0.1,
-                  epochs=5)
+        self.__thread_pool.submit(self.__pipeline,
+                                  code,
+                                  method_parameters,
+                                  description)
 
-        method_result = model.get_weights()  # self.distributed_executor.run(train, kwargs=kwargs)
+    def __pipeline(self,
+                   code: str,
+                   method_parameters: dict,
+                   description: str) -> None:
+        self.distributed_executor.start()
 
-        self.__execute_a_object_method(model_instance, 'set_weights', dict({'weights': method_result}))
+        tree = ast.parse(code)
+
+        if len(tree.body) != 1 or not isinstance(tree.body[0], ast.FunctionDef):
+            raise ValueError("provided code fragment is not a single function")
+
+        comp = compile(code, filename="file.py", mode="single")
+        func = types.FunctionType(comp.co_consts[0], {})
+
+        kwargs = self.__parameters_handler.treat(method_parameters)
+
+        method_result = self.distributed_executor.run(func, kwargs=kwargs)
 
         self.__storage.save(method_result, self.executor_name,
                             self.executor_service_type)

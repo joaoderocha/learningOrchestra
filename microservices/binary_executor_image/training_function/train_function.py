@@ -1,5 +1,9 @@
+from subprocess import Popen, PIPE, STDOUT
+from typing import Tuple
+from datetime import datetime
 import tensorflow
 import numpy
+import requests
 
 
 class InstanceTreatment:
@@ -49,15 +53,22 @@ class InstanceTreatment:
 
 class ExecutionBackground:
     def __init__(self, **kwargs):
+        import horovod.tensorflow.keras as hvd
+        hvd.init()
         print('model iniciado', flush=True)
         self.instanceTreatment = InstanceTreatment()
         self.model = tensorflow.keras.models.model_from_json(kwargs['model'])
         self.model_name = kwargs['model_name']
+        self.callbacks = kwargs['callbacks'] + kwargs['rank0callbacks'] if hvd.rank() == 0 else kwargs['callbacks']
+        self.monitoring_path = kwargs['monitoring_path']
+        if self.monitoring_path is not '':
+            self.monitoring_process = Popen(['tensorboard', '--logdir', f'{self.monitoring_path}', '--bind_all'],
+                                            stdout=PIPE, stderr=STDOUT)
         self.training_parameters = dict({
             **kwargs['training_parameters'],
             'x': numpy.fromstring(kwargs['x']),
             'y': numpy.fromstring(kwargs['y']),
-            'callbacks': self.instanceTreatment.treat(kwargs['callbacks'])
+            'callbacks': self.instanceTreatment.treat(self.callbacks)
         })
         self.compile_code = kwargs['compile_code']
         print('modelo iniciado...', self.model, flush=True)
@@ -75,6 +86,50 @@ class ExecutionBackground:
         print('treiando...', flush=True)
         self.model.fit(**self.training_parameters)
         return self.model.get_weights()
+
+
+class ProcessController:
+    def __init__(self) -> None:
+        self.__processDict = dict()
+        self.__localhost = requests.get('https://api.ipify.org').text
+
+    def create_process(self, arg_list: list, process_nickname: str, monitoring_path: str) -> Tuple[Popen, str]:
+        nickname = process_nickname
+        if nickname in self.__processDict:
+            nickname = process_nickname + datetime.strftime("%Y%m%d-%H%M%S")
+
+        process = Popen(arg_list, stdout=PIPE, stderr=STDOUT)
+        self.__processDict[nickname] = {'process': process, 'path': monitoring_path}
+
+        return process, nickname
+
+    def kill_process(self, process_nickname: str) -> None:
+        if process_nickname in self.__processDict:
+            process = self.__processDict.pop(process_nickname)
+            process.kill()
+
+    def get_process(self, process_nickname: str) -> Popen:
+        if process_nickname in self.__processDict:
+            return self.__processDict.get(process_nickname)['process']
+
+    def get_url(self, process_nickname: str) -> str:
+        if process_nickname in self.__processDict:
+            return self.__processDict.get(process_nickname)['url']
+
+    def add_port(self, process_nickname: str, port: str) -> str:
+        if process_nickname in self.__processDict:
+            self.__processDict.get(process_nickname)['url'] = f'http://{self.__localhost}:{port}'
+            return self.__processDict.get(process_nickname)['url']
+
+
+def find_port(proc) -> str:
+    for line in iter(proc.stdout.readline, b''):
+        decoded_line = line.decode('utf-8')
+        left_index = decoded_line.find('http://')
+        if left_index > 0:
+            right_index = decoded_line.rfind('/')
+            url = decoded_line[left_index:right_index + 1]
+            return url[url.rfind(':') + 1:url.rfind('/')]
 
 
 def train(*args, **kwargs):

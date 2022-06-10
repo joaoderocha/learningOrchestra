@@ -64,6 +64,7 @@ class Constants:
 
     MONITORING_TENSORFLOW_TYPE = "monitoring/tensorflow"
     COMPILATION_FIELD_NAME = "compile_code"
+    CODE_FIELD_NAME = "code"
 
     API_PATH = "/api/learningOrchestra/v1/"
 
