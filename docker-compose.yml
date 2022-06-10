@@ -354,6 +354,7 @@ services:
     shm_size: 2g
     deploy:
       mode: global
+      replicas: 2
       placement:
         constraints:
           - "node.role==manager"
