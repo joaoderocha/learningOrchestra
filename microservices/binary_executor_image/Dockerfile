@@ -3,11 +3,11 @@ FROM python:3.7
 WORKDIR /usr/src/binary_executor
 COPY . /usr/src/binary_executor
 
-RUN sudo apt-get update
+RUN apt-get update
 
-RUN sudo apt-get -y install build-essential
+RUN apt-get -y install build-essential
 
-RUN sudo apt-get -y install cmake gcc g++
+RUN apt-get -y install cmake gcc g++
 
 RUN pip install -r requirements.txt
 
