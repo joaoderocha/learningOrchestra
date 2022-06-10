@@ -329,7 +329,7 @@ services:
       - "10001:10001"
     env_file:
       - .env
-    command: bash -c "ray start --head --dashboard-port=${DASHBOARDPORT} --port=${REDISPORT} --dashboard-host=0.0.0.0 --redis-password=${REDISPASSWORD} --block"
+    command: bash -c "ray start --head --dashboard-port=8265 --port=6379 --dashboard-host=0.0.0.0 --redis-password=passwd --block"
     shm_size: 2g
     deploy:
       placement:
@@ -347,7 +347,7 @@ services:
       - ray-head
     env_file:
       - .env
-    command: bash -c "ray start --address=ray-head:${REDISPORT} --redis-password=${REDISPASSWORD} --num-cpus=${NUM_CPU_WORKER} --block"
+    command: bash -c "ray start --address=ray-head:6379 --redis-password=passwd --num-cpus=2 --block"
     shm_size: 2g
     deploy:
       mode: global
