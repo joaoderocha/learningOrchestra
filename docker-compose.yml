@@ -353,7 +353,7 @@ services:
     command: bash -c "ray start --address=ray-head:6379 --redis-password=passwd --num-cpus=2 --block"
     shm_size: 2g
     deploy:
-      replicas: 2
+      mode: global
       placement:
         constraints:
           - "node.role==worker"

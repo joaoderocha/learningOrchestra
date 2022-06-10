@@ -5,16 +5,19 @@ from utils import UserRequest, Database, ObjectStorage, Data, Metadata, ProcessC
 from typing import Union, Tuple
 from constants import Constants
 
-# import ray
-# from horovod.ray import RayExecutor
-# import horovod.tensorflow.keras as hvd
-# import training_function
+import ray
+from horovod.ray import RayExecutor
+import horovod.tensorflow.keras as hvd
+import training_function
 
-# address = f'{os.environ["NODE_IP_ADDRESS"]}:{os.environ["HOST_PORT"]}'
-# runtime_env = {"py_modules": [training_function], "pip": "./requirements.txt"}
-# ray.init(address=address, runtime_env=runtime_env)
+address = f'{os.environ["NODE_IP_ADDRESS"]}:{os.environ["HOST_PORT"]}'
+runtime_env = {"py_modules": [training_function], "pip": "./requirements.txt"}
+ray.init(address=address, runtime_env=runtime_env)
 
-# hvd.init()
+hvd.init()
+
+settings = RayExecutor.create_settings(timeout_s=360, placement_group_timeout_s=360)
+executor = RayExecutor(settings, num_workers_per_host=1, num_hosts=2, use_gpu=False, cpus_per_worker=2)
 
 app = Flask(__name__)
 
@@ -200,8 +203,6 @@ def get_monitoring() -> jsonify:
 
 @app.route(Constants.MICROSERVICE_DISTRIBUTED_TRAINING_URI_PATH, methods=['POST'])
 def create_distributed_execution() -> jsonify:
-    # settings = RayExecutor.create_settings(timeout_s=360, placement_group_timeout_s=360)
-    # executor = RayExecutor(settings, num_workers_per_host=1, num_hosts=2, use_gpu=False, cpus_per_worker=1)
     print('dist execution', flush=True)
     service_type = request.args.get(Constants.TYPE_FIELD_NAME)
     model_name = request.json[Constants.MODEL_NAME_FIELD_NAME]
@@ -229,7 +230,7 @@ def create_distributed_execution() -> jsonify:
         class_method,
         parameters_handler,
         storage,
-        None,  # executor,
+        executor,
         compilation_code,
         monitoring_path
     )
@@ -251,8 +252,6 @@ def create_distributed_execution() -> jsonify:
 
 @app.route(Constants.MICROSERVICE_DISTRIBUTED_BUILDER_URI_PATH, methods=['POST'])
 def create_builder_horovod() -> jsonify:
-    # settings = RayExecutor.create_settings(timeout_s=360, placement_group_timeout_s=360)
-    # executor = RayExecutor(settings, num_workers_per_host=1, num_hosts=2, use_gpu=False, cpus_per_worker=1)
     print('dist execution', flush=True)
     service_type = request.args.get(Constants.TYPE_FIELD_NAME)
     filename = request.json[Constants.NAME_FIELD_NAME]
@@ -272,7 +271,7 @@ def create_builder_horovod() -> jsonify:
         metadata_creator,
         parameters_handler,
         storage,
-        None,  # executor,
+        executor,
         code,
         monitoring_path
     )
@@ -295,7 +294,7 @@ def update_builder_horovod() -> jsonify:
     pass
 
 
-@app.route(f'Constants.MICROSERVICE_DISTRIBUTED_BUILDER_URI_PATH/<filename>', methods=['DELETE'])
+@app.route(f'{Constants.MICROSERVICE_DISTRIBUTED_BUILDER_URI_PATH}/<filename>', methods=['DELETE'])
 def delete_builder_horovod(filename: str) -> jsonify:
     service_type = request.args.get(Constants.TYPE_FIELD_NAME)
 
