@@ -317,88 +317,88 @@ services:
       - database
     environment: *default-service-database-env
 
-  distributedtraining:
-    build: microservices/distributed_training_image
-    image: 127.0.0.1:5050/distributed_training
-    ports:
-      - target: 5010
-        published: 5010
-      - target: 6379
-        published: 6379
-        protocol: tcp
-        mode: host
-      - target: 8265
-        published: 8265
-      - target: 4501
-        published: 4501
-        protocol: tcp
-        mode: host
-      - target: 4502
-        published: 4502
-        protocol: tcp
-        mode: host
-      - target: 10001
-        published: 10001
-    depends_on:
-      - databaseprimary
-      - images
-    deploy: *default-deploy-manager
-    networks:
-      - database
-      - ray
-    environment:
-      - HOST_PORT=6379
-      - OBJECT_MANAGER_PORT=4501
-      - NODE_MANAGER_PORT=4502
-      - NODE_IP_ADDRESS=distributedtraining
-      - DASHBOARD_PORT=8265
-      - DATABASE_URL=mongodb://root:owl45#21@databaseprimary,databasesecondary
-      - DATABASE_PORT=27017
-      - DATABASE_REPLICA_SET=replica_set
-      - DATABASE_NAME=database
-    volumes:
-      - "model:/models"
-      - "binary_executor:/binaries"
-      - "database_executor:/transform"
-      - "code_executor:/code_executions"
-
-  rayworker:
-    build: microservices/ray_worker_image
-    image: camazaqui/ray-worker:latest
-    ports:
-      - target: 4501
-        published: 4501
-        protocol: tcp
-        mode: host
-      - target: 4502
-        published: 4502
-        protocol: tcp
-        mode: host
-    depends_on:
-      - distributedtraining
-      - images
-    networks:
-      - database
-      - ray
-    environment:
-      - RAY_HEAD=distributedtraining
-      - HOST_PORT=6379
-      - OBJECT_MANAGER_PORT=4501
-      - NODE_MANAGER_PORT=4502
-    deploy:
-      mode: global
-      placement:
-        constraints:
-          - "node.role==worker"
-    links:
-      - distributedtraining
-    command: dockerize -wait tcp://distributedtraining:6379 -timeout 240s ./start.sh
+#  distributedtraining:
+#    build: microservices/distributed_training_image
+#    image: 127.0.0.1:5050/distributed_training
+#    ports:
+#      - target: 5010
+#        published: 5010
+#      - target: 6379
+#        published: 6379
+#        protocol: tcp
+#        mode: host
+#      - target: 8265
+#        published: 8265
+#      - target: 4501
+#        published: 4501
+#        protocol: tcp
+#        mode: host
+#      - target: 4502
+#        published: 4502
+#        protocol: tcp
+#        mode: host
+#      - target: 10001
+#        published: 10001
+#    depends_on:
+#      - databaseprimary
+#      - images
+#    deploy: *default-deploy-manager
+#    networks:
+#      - database
+#      - ray
+#    environment:
+#      - HOST_PORT=6379
+#      - OBJECT_MANAGER_PORT=4501
+#      - NODE_MANAGER_PORT=4502
+#      - NODE_IP_ADDRESS=distributedtraining
+#      - DASHBOARD_PORT=8265
+#      - DATABASE_URL=mongodb://root:owl45#21@databaseprimary,databasesecondary
+#      - DATABASE_PORT=27017
+#      - DATABASE_REPLICA_SET=replica_set
+#      - DATABASE_NAME=database
+#    volumes:
+#      - "model:/models"
+#      - "binary_executor:/binaries"
+#      - "database_executor:/transform"
+#      - "code_executor:/code_executions"
+#
+#  rayworker:
+#    build: microservices/ray_worker_image
+#    image: camazaqui/ray-worker:latest
+#    ports:
+#      - target: 4501
+#        published: 4501
+#        protocol: tcp
+#        mode: host
+#      - target: 4502
+#        published: 4502
+#        protocol: tcp
+#        mode: host
+#    depends_on:
+#      - distributedtraining
+#      - images
+#    networks:
+#      - database
+#      - ray
+#    environment:
+#      - RAY_HEAD=distributedtraining
+#      - HOST_PORT=6379
+#      - OBJECT_MANAGER_PORT=4501
+#      - NODE_MANAGER_PORT=4502
+#    deploy:
+#      mode: global
+#      placement:
+#        constraints:
+#          - "node.role==worker"
+#    links:
+#      - distributedtraining
+#    command: dockerize -wait tcp://distributedtraining:6379 -timeout 240s ./start.sh
 
 networks:
   database:
   spark:
   portainer:
-  ray:
+#  ray:
 
 volumes:
   images:
