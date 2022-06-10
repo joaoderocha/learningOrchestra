@@ -288,6 +288,7 @@ services:
     depends_on:
       - databaseprimary
       - images
+      - ray-head
     deploy: *default-deploy-manager
     networks:
       - database
