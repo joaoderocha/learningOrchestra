@@ -1,9 +1,20 @@
 from flask import jsonify, request, Flask
 import os
-from binary_execution import Execution, Parameters
+from binary_execution import Execution, Parameters, DistributedExecution, DistributedBuilderExecution
 from utils import UserRequest, Database, ObjectStorage, Data, Metadata, ProcessController, find_port
 from typing import Union, Tuple
 from constants import Constants
+
+# import ray
+# from horovod.ray import RayExecutor
+# import horovod.tensorflow.keras as hvd
+# import training_function
+
+# address = f'{os.environ["NODE_IP_ADDRESS"]}:{os.environ["HOST_PORT"]}'
+# runtime_env = {"py_modules": [training_function], "pip": "./requirements.txt"}
+# ray.init(address=address, runtime_env=runtime_env)
+
+# hvd.init()
 
 app = Flask(__name__)
 
@@ -184,6 +195,129 @@ def get_monitoring() -> jsonify:
             Constants.MESSAGE_RESULT: url,
         }),
         Constants.HTTP_STATUS_CODE_SUCCESS
+    )
+
+
+@app.route(Constants.MICROSERVICE_DISTRIBUTED_TRAINING_URI_PATH, methods=['POST'])
+def create_distributed_execution() -> jsonify:
+    # settings = RayExecutor.create_settings(timeout_s=360, placement_group_timeout_s=360)
+    # executor = RayExecutor(settings, num_workers_per_host=1, num_hosts=2, use_gpu=False, cpus_per_worker=1)
+    print('dist execution', flush=True)
+    service_type = request.args.get(Constants.TYPE_FIELD_NAME)
+    model_name = request.json[Constants.MODEL_NAME_FIELD_NAME]
+    parent_name = request.json[Constants.PARENT_NAME_FIELD_NAME]
+    filename = request.json[Constants.NAME_FIELD_NAME]
+    description = request.json[Constants.DESCRIPTION_FIELD_NAME]
+    class_method = request.json[Constants.METHOD_FIELD_NAME]
+    method_parameters = request.json[Constants.METHOD_PARAMETERS_FIELD_NAME]
+    compilation_code = request.json[Constants.COMPILATION_FIELD_NAME]
+    monitoring_path = ''
+    try:
+        monitoring_path = request.json[Constants.MONITORING_PATH_FIELD_NAME]
+    except Exception:
+        pass
+
+    parent_name_service_type = data.get_type(parent_name)
+
+    train_model = DistributedExecution(
+        database,
+        filename,
+        service_type,
+        parent_name,
+        parent_name_service_type,
+        metadata_creator,
+        class_method,
+        parameters_handler,
+        storage,
+        None,  # executor,
+        compilation_code,
+        monitoring_path
+    )
+
+    module_path, class_name = data.get_module_and_class_from_a_instance(
+        model_name)
+    train_model.create(
+        module_path, class_name, method_parameters, description)
+
+    return (
+        jsonify({
+            Constants.MESSAGE_RESULT:
+                f'{Constants.MICROSERVICE_URI_SWITCHER[service_type]}'
+                f'{filename}{Constants.MICROSERVICE_URI_GET_PARAMS}',
+        }),
+        Constants.HTTP_STATUS_CODE_SUCCESS_CREATED,
+    )
+
+
+@app.route(Constants.MICROSERVICE_DISTRIBUTED_BUILDER_URI_PATH, methods=['POST'])
+def create_builder_horovod() -> jsonify:
+    # settings = RayExecutor.create_settings(timeout_s=360, placement_group_timeout_s=360)
+    # executor = RayExecutor(settings, num_workers_per_host=1, num_hosts=2, use_gpu=False, cpus_per_worker=1)
+    print('dist execution', flush=True)
+    service_type = request.args.get(Constants.TYPE_FIELD_NAME)
+    filename = request.json[Constants.NAME_FIELD_NAME]
+    description = request.json[Constants.DESCRIPTION_FIELD_NAME]
+    method_parameters = request.json[Constants.METHOD_PARAMETERS_FIELD_NAME]
+    code = request.json[Constants.CODE_FIELD_NAME]
+    monitoring_path = ''
+    try:
+        monitoring_path = request.json[Constants.MONITORING_PATH_FIELD_NAME]
+    except Exception:
+        pass
+
+    train_model = DistributedBuilderExecution(
+        database,
+        filename,
+        service_type,
+        metadata_creator,
+        parameters_handler,
+        storage,
+        None,  # executor,
+        code,
+        monitoring_path
+    )
+
+    train_model.build(filename,
+                      code, monitoring_path, method_parameters, description)
+
+    return (
+        jsonify({
+            Constants.MESSAGE_RESULT:
+                f'{Constants.MICROSERVICE_URI_SWITCHER[service_type]}'
+                f'{filename}{Constants.MICROSERVICE_URI_GET_PARAMS}',
+        }),
+        Constants.HTTP_STATUS_CODE_SUCCESS_CREATED,
+    )
+
+
+@app.route(Constants.MICROSERVICE_DISTRIBUTED_BUILDER_URI_PATH, methods=['PATCH'])
+def update_builder_horovod() -> jsonify:
+    pass
+
+
+@app.route(f'Constants.MICROSERVICE_DISTRIBUTED_BUILDER_URI_PATH/<filename>', methods=['DELETE'])
+def delete_builder_horovod(filename: str) -> jsonify:
+    service_type = request.args.get(Constants.TYPE_FIELD_NAME)
+
+    try:
+        request_validator.existent_filename_validator(
+            filename
+        )
+    except Exception as nonexistent_model_filename:
+        return (
+            jsonify(
+                {Constants.MESSAGE_RESULT: str(nonexistent_model_filename)}),
+            Constants.HTTP_STATUS_CODE_NOT_FOUND,
+        )
+
+    storage.delete(filename, service_type)
+
+    return (
+        jsonify({
+            Constants.MESSAGE_RESULT: Constants.DELETED_MESSAGE,
+            Constants.EXTRA_RESULTS: {}
+        }),
+        Constants.HTTP_STATUS_CODE_SUCCESS,
     )
 
 

@@ -2,17 +2,19 @@ class Constants:
     MODULE_PATH_FIELD_NAME = "modulePath"
     CLASS_FIELD_NAME = "class"
     MODEL_NAME_FIELD_NAME = "modelName"
+    BUILD_NAME_FIELD_NAME = "buildName"
     PARENT_NAME_FIELD_NAME = "parentName"
     NAME_FIELD_NAME = "name"
+    CODE_FIELD_NAME = "code"
     FINISHED_FIELD_NAME = "finished"
     DESCRIPTION_FIELD_NAME = "description"
     METHOD_FIELD_NAME = "method"
     METHOD_PARAMETERS_FIELD_NAME = "methodParameters"
     TYPE_FIELD_NAME = "type"
     EXCEPTION_FIELD_NAME = "exception"
-    MONITORING_PATH_FIELD_NAME = "monitoringPath"
     EXTRA_RESULTS = "extra_results"
     MONITORING_NICKNAME_FIELD_NAME = "nickname"
+    COMPILATION_FIELD_NAME = "compile_code"
 
     MODELS_VOLUME_PATH = "MODELS_VOLUME_PATH"
     BINARY_VOLUME_PATH = "BINARY_VOLUME_PATH"
@@ -63,8 +65,8 @@ class Constants:
     EXPLORE_TENSORFLOW_TYPE = "explore/tensorflow"
 
     MONITORING_TENSORFLOW_TYPE = "monitoring/tensorflow"
-    COMPILATION_FIELD_NAME = "compile_code"
-    CODE_FIELD_NAME = "code"
+    DISTRIBUTED_TRAINING_TYPE = "train/horovod"
+    HOROVOD_BUILDER_TYPE = "builder/horovod"
 
     API_PATH = "/api/learningOrchestra/v1/"
 
@@ -78,11 +80,12 @@ class Constants:
         PREDICT_SCIKITLEARN_TYPE: f'{API_PATH}{PREDICT_SCIKITLEARN_TYPE}',
         PREDICT_TENSORFLOW_TYPE: f'{API_PATH}{PREDICT_TENSORFLOW_TYPE}',
         MONITORING_TENSORFLOW_TYPE: f'{API_PATH}{MONITORING_TENSORFLOW_TYPE}',
+        DISTRIBUTED_TRAINING_TYPE: f'{API_PATH}{DISTRIBUTED_TRAINING_TYPE}',
+        HOROVOD_BUILDER_TYPE: f'{API_PATH}{HOROVOD_BUILDER_TYPE}',
     }
 
-    MICROSERVICE_URI_PATH = "/binaryExecutor"
-    MICROSERVICE_DISTRIBUTED_TRAINING_URI_PATH = "/distributedTraining"
-    MICROSERVICE_DISTRIBUTED_BUILDER_URI_PATH = "/builderHorovod"
+    MICROSERVICE_URI_BUILDER_PATH = "/builderHorovod"
+    MICROSERVICE_URI_PATH = "/distributedTraining"
     MICROSERVICE_URI_GET_PARAMS = "?query={}&limit=20&skip=0"
 
     FIRST_ARGUMENT = 0

@@ -1,8 +1,20 @@
-FROM python:3.7-slim
+FROM python:3.7
 
 WORKDIR /usr/src/binary_executor
 COPY . /usr/src/binary_executor
+
+RUN apt-get update
+
+RUN apt-get -y install build-essential
+
+RUN apt-get -y install cmake gcc g++
+
 RUN pip install -r requirements.txt
+
+RUN HOROVOD_WITH_GLOO=1 HOROVOD_WITHOUT_MPI=1 HOROVOD_WITH_TENSORFLOW=1 pip install 'horovod[ray,tensorflow,keras]'
+
+RUN pip install -U 'ray[default]'
+
 
 ENV MICROSERVICE_IP "0.0.0.0"
 ENV MICROSERVICE_PORT 5008

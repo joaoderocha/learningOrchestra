@@ -26,7 +26,7 @@ x-service-database-env: &default-service-database-env
 services:
   databaseapi:
     build: microservices/database_api_image
-    image: 127.0.0.1:5050/database_api
+    image: learningorchestra/database_api
     ports:
       - "5000:5000"
     depends_on:
@@ -131,7 +131,7 @@ services:
 
   sparkmaster:
     build: microservices/spark_image
-    image: 127.0.0.1:5050/spark
+    image: learningorchestra/spark
     ports:
       - "4040:4040"
       - "7077:7077"
@@ -144,7 +144,7 @@ services:
       - database
 
   sparkworker:
-    image: 127.0.0.1:5050/spark
+    image: learningorchestra/spark
     entrypoint: dockerize -wait tcp://sparkmaster:7077 -timeout 240s /sbin/my_init
     ports:
       - "8081:8081"
@@ -167,7 +167,7 @@ services:
 
   projection:
     build: microservices/projection_image
-    image: 127.0.0.1:5050/projection
+    image: learningorchestra/projection
     ports:
       - "5001:5001"
       - "41000:41000"
@@ -186,7 +186,7 @@ services:
 
   builder:
     build: microservices/builder_image
-    image: 127.0.0.1:5050/builder
+    image: learningorchestra/builder
     ports:
       - "5002:5002"
       - "41100:41100"
@@ -205,7 +205,7 @@ services:
 
   datatypehandler:
     build: microservices/data_type_handler_image
-    image: 127.0.0.1:5050/data_type_handler
+    image: learningorchestra/data_type_handler
     ports:
       - "5003:5003"
     depends_on:
@@ -218,7 +218,7 @@ services:
 
   histogram:
     build: microservices/histogram_image
-    image: 127.0.0.1:5050/histogram
+    image: learningorchestra/histogram
     ports:
       - "5004:5004"
     depends_on:
@@ -231,7 +231,7 @@ services:
 
   databasexecutor:
     build: microservices/database_executor_image
-    image: 127.0.0.1:5050/database_executor
+    image: learningorchestra/database_executor
     ports:
       - "5006:5006"
     depends_on:
@@ -249,9 +249,8 @@ services:
     environment: *default-service-database-env
 
   gatewayapi:
-    image: devopsfaith/krakend:1.2.0
-    volumes:
-      - "./microservices/krakend:/etc/krakend"
+    build: microservices/krakend
+    image: 127.0.0.1:5050/gatewayapi
     ports:
       - "80:8080"
       - "8090:8090"
@@ -284,14 +283,17 @@ services:
     image: 127.0.0.1:5050/binary_executor
     ports:
       - "5008:5008"
-      - "6006-7000:6006-7000"
+      - "6000-7000:6000-7000"
     depends_on:
       - databaseprimary
       - images
     deploy: *default-deploy-manager
     networks:
       - database
-    environment: *default-service-database-env
+    environment:
+      - <<*default-service-database-env
+      - NODE_IP_ADDRESS=distributedtraining
+      - HOST_PORT=6379
     volumes:
       - "model:/models"
       - "binary_executor:/binaries"
@@ -318,10 +320,88 @@ services:
       - database
     environment: *default-service-database-env
 
+#  distributedtraining:
+#    build: microservices/distributed_training_image
+#    image: 127.0.0.1:5050/distributed_training
+#    ports:
+#      - target: 5010
+#        published: 5010
+#      - target: 6379
+#        published: 6379
+#        protocol: tcp
+#        mode: host
+#      - target: 8265
+#        published: 8265
+#      - target: 4501
+#        published: 4501
+#        protocol: tcp
+#        mode: host
+#      - target: 4502
+#        published: 4502
+#        protocol: tcp
+#        mode: host
+#      - target: 10001
+#        published: 10001
+#    depends_on:
+#      - databaseprimary
+#      - images
+#    deploy: *default-deploy-manager
+#    networks:
+#      - database
+#      - ray
+#    environment:
+#      - HOST_PORT=6379
+#      - OBJECT_MANAGER_PORT=4501
+#      - NODE_MANAGER_PORT=4502
+#      - NODE_IP_ADDRESS=distributedtraining
+#      - DASHBOARD_PORT=8265
+#      - DATABASE_URL=mongodb://root:owl45#21@databaseprimary,databasesecondary
+#      - DATABASE_PORT=27017
+#      - DATABASE_REPLICA_SET=replica_set
+#      - DATABASE_NAME=database
+#    volumes:
+#      - "model:/models"
+#      - "binary_executor:/binaries"
+#      - "database_executor:/transform"
+#      - "code_executor:/code_executions"
+#
+#  rayworker:
+#    build: microservices/ray_worker_image
+#    image: camazaqui/ray-worker:latest
+#    ports:
+#      - target: 4501
+#        published: 4501
+#        protocol: tcp
+#        mode: host
+#      - target: 4502
+#        published: 4502
+#        protocol: tcp
+#        mode: host
+#    depends_on:
+#      - distributedtraining
+#      - images
+#    networks:
+#      - database
+#      - ray
+#    environment:
+#      - RAY_HEAD=distributedtraining
+#      - HOST_PORT=6379
+#      - OBJECT_MANAGER_PORT=4501
+#      - NODE_MANAGER_PORT=4502
+#    deploy:
+#      mode: global
+#      placement:
+#        constraints:
+#          - "node.role==worker"
+#    links:
+#      - distributedtraining
+#    command: dockerize -wait tcp://distributedtraining:6379 -timeout 240s ./start.sh
+
 networks:
   database:
   spark:
   portainer:
+#  ray:
 
 volumes:
   images:
