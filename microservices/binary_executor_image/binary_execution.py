@@ -2,7 +2,10 @@ import importlib
 from concurrent.futures import ThreadPoolExecutor
 from utils import Database, Data, Metadata, ObjectStorage
 from constants import Constants
+from horovod.ray import RayExecutor
+import tensorflow
 import traceback
+from microservices.binary_executor_image.training_function.train_function import train
 
 
 class Parameters:
@@ -59,6 +62,7 @@ class Parameters:
             f'{class_instance_name}=')
 
         import tensorflow
+        import horovod.tensorflow.keras as hvd
         exec(class_code, locals(), context_variables)
 
         return context_variables[class_instance_name]
@@ -152,9 +156,11 @@ class Execution:
             importlib.import_module(module_path)
             model_instance = self.__storage.read(self.parent_name,
                                                  self.parent_name_service_type)
+
             method_result = self.__execute_a_object_method(model_instance,
                                                            self.class_method,
                                                            method_parameters)
+
             self.__storage.save(method_result, self.executor_name,
                                 self.executor_service_type)
             self.__metadata_creator.update_finished_flag(self.executor_name,
@@ -187,3 +193,59 @@ class Execution:
             return class_instance
 
         return method_result
+
+
+class DistributedExecution(Execution):
+    def __init__(self, database_connector: Database, executor_name: str, executor_service_type: str, parent_name: str,
+                 parent_name_service_type: str, metadata_creator: Metadata, class_method: str,
+                 parameters_handler: Parameters, storage: ObjectStorage, ray_executor: RayExecutor, compile_code: str):
+        super().__init__(database_connector, executor_name, executor_service_type, parent_name,
+                         parent_name_service_type, metadata_creator, class_method, parameters_handler, storage)
+        self.distributed_executor = ray_executor
+        self.compile_code = compile_code
+
+    def __pipeline(self,
+                   module_path: str,
+                   method_parameters: dict,
+                   description: str) -> None:
+        importlib.import_module(module_path)
+        model_instance = self.__storage.read(self.parent_name,
+                                             self.parent_name_service_type)
+
+        model_definition = model_instance.to_json()
+        treated_parameters = self.__parameters_handler.treat(method_parameters)
+
+        callbacks = method_parameters['callbacks']
+        del treated_parameters['callbacks']
+
+        kwargs = dict({
+            'model': model_definition,
+            'model_name': self.parent_name,
+            'training_parameters': treated_parameters,
+            'compile_code': self.compile_code,
+            'callbacks': callbacks,
+        })
+
+        model = tensorflow.keras.models.Sequential(layers=[
+            tensorflow.keras.layers.Flatten(input_shape=(28, 28)),
+            tensorflow.keras.layers.Dense(128, activation='relu'),
+            tensorflow.keras.layers.Dense(10, activation='softmax'),
+        ])
+
+        model.compile(
+            optimizer=tensorflow.keras.optimizers.Adam(0.001),
+            loss=tensorflow.keras.losses.SparseCategoricalCrossentropy(),
+            metrics=[tensorflow.keras.metrics.SparseCategoricalAccuracy()],
+        )
+
+        model.fit(x=treated_parameters['x'], y=treated_parameters['y'], validation_split=0.1,
+                  epochs=5)
+
+        method_result = model.get_weights()  # self.distributed_executor.run(train, kwargs=kwargs)
+
+        self.__execute_a_object_method(model_instance, 'set_weights', dict({'weights': method_result}))
+
+        self.__storage.save(method_result, self.executor_name,
+                            self.executor_service_type)
+        self.__metadata_creator.update_finished_flag(self.executor_name,
+                                                     flag=True)

@@ -63,6 +63,7 @@ class Constants:
     EXPLORE_TENSORFLOW_TYPE = "explore/tensorflow"
 
     MONITORING_TENSORFLOW_TYPE = "monitoring/tensorflow"
+    COMPILATION_FIELD_NAME = "compile_code"
 
     API_PATH = "/api/learningOrchestra/v1/"
 
@@ -79,6 +80,8 @@ class Constants:
     }
 
     MICROSERVICE_URI_PATH = "/binaryExecutor"
+    MICROSERVICE_DISTRIBUTED_TRAINING_URI_PATH = "/distributedTraining"
+    MICROSERVICE_DISTRIBUTED_BUILDER_URI_PATH = "/builderHorovod"
     MICROSERVICE_URI_GET_PARAMS = "?query={}&limit=20&skip=0"
 
     FIRST_ARGUMENT = 0

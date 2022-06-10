@@ -1774,7 +1774,7 @@
           "method": "POST",
           "url_pattern": "/distributedTraining?type=train/tensorflow",
           "host": [
-            "http://distributedtraining:5010"
+            "http://binaryexecutor:5008"
           ],
           "extra_config": {}
         }
@@ -1790,7 +1790,7 @@
           "method": "POST",
           "url_pattern": "/builderHorovod?type=builder/horovod",
           "host": [
-            "http://builderHorovod:5010"
+            "http://binaryexecutor:5008"
           ],
           "extra_config": {}
         }

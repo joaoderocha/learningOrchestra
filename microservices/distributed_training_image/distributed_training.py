@@ -1,10 +1,9 @@
 import importlib
 from concurrent.futures import ThreadPoolExecutor
-from numpy import array2string, ndarray
 from utils import Database, Data, Metadata, ObjectStorage
 from constants import Constants
 import traceback
-from training_function.train_function import train
+from microservices.binary_executor_image.training_function.train_function import train
 from horovod.ray import RayExecutor
 from ray.util import inspect_serializability
 import tensorflow
@@ -70,8 +69,6 @@ class Parameters:
             self.__CLASS_INSTANCE_CHARACTER,
             f'{class_instance_name}=')
 
-        import tensorflow
-        import horovod.tensorflow.keras as hvd
         exec(class_code, locals(), context_variables)
 
         return context_variables[class_instance_name]
