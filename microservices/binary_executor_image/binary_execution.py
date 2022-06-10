@@ -198,9 +198,10 @@ class Execution:
 class DistributedExecution(Execution):
     def __init__(self, database_connector: Database, executor_name: str, executor_service_type: str, parent_name: str,
                  parent_name_service_type: str, metadata_creator: Metadata, class_method: str,
-                 parameters_handler: Parameters, storage: ObjectStorage, ray_executor: RayExecutor, compile_code: str):
+                 parameters_handler: Parameters, storage: ObjectStorage, ray_executor=None, compile_code: str = ''):
         super().__init__(database_connector, executor_name, executor_service_type, parent_name,
                          parent_name_service_type, metadata_creator, class_method, parameters_handler, storage)
+
         self.distributed_executor = ray_executor
         self.compile_code = compile_code
 
