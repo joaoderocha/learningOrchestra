@@ -212,12 +212,31 @@ class DistributedExecution(Execution):
         self.compile_code = compile_code
         self.monitoring_path = monitoring_path
 
+    def create(self,
+               module_path: str,
+               class_name: str,
+               method_parameters: dict,
+               description: str) -> None:
+        self.__metadata_creator.create_file(self.parent_name,
+                                            self.executor_name,
+                                            module_path,
+                                            class_name,
+                                            self.class_method,
+                                            self.executor_service_type)
+
+        self.__thread_pool.submit(self.__pipeline,
+                                  module_path,
+                                  method_parameters,
+                                  description)
+
     def __pipeline(self,
                    module_path: str,
                    method_parameters: dict,
                    description: str) -> None:
         try:
             importlib.import_module(module_path)
+            rank0callbacks = method_parameters['rank0callbacks']
+            del method_parameters['rank0callbacks']
             model_instance = self.__storage.read(self.parent_name,
                                                  self.parent_name_service_type)
 
@@ -225,9 +244,8 @@ class DistributedExecution(Execution):
             treated_parameters = self.__parameters_handler.treat(method_parameters)
 
             callbacks = method_parameters['callbacks']
-            rank0callbacks = method_parameters['rank0callbacks']
             del treated_parameters['callbacks']
-            del treated_parameters['rank0callbacks']
+
             a = self.distributed_executor.execute(lambda worker: worker.rank())
             print('ranks', a, flush=True)
             kwargs = dict({
