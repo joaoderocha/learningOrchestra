@@ -19,7 +19,7 @@ hvd.init()
 
 settings = RayExecutor.create_settings(timeout_s=600, placement_group_timeout_s=600)
 executor = RayExecutor(settings, num_workers_per_host=1, num_hosts=2, use_gpu=False, cpus_per_worker=2)
-executor.start(executable_cls=ClasseTeste)
+executor.start()
 
 app = Flask(__name__)
 

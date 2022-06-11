@@ -139,12 +139,7 @@ def train(*args, **kwargs):
     return exe.train()
 
 
-class ClasseTeste:
-    def __init__(self):
-        import horovod.tensorflow.keras as hvd
-        hvd.init()
-        self.prefix = './logs'
-        self.rank = hvd.rank()
-
-    def rank(self):
-        return self.rank()
+def get_rank():
+    import horovod.tensorflow.keras as hvd
+    hvd.init()
+    return hvd.rank()

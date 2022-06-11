@@ -7,7 +7,7 @@ from constants import Constants
 from horovod.ray import RayExecutor
 import tensorflow
 import traceback
-from training_function.train_function import train
+from training_function.train_function import train, get_rank
 
 
 class Parameters:
@@ -248,8 +248,9 @@ class DistributedExecution(Execution):
             callbacks = method_parameters['callbacks']
             del treated_parameters['callbacks']
 
-            a = self.distributed_executor.execute(lambda worker: worker.rank())
+            a = self.distributed_executor.run(get_rank)
             print('ranks', a, flush=True)
+
             kwargs = dict({
                 'model': model_definition,
                 'model_name': self.parent_name,
