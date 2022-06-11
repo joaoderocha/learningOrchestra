@@ -9,7 +9,6 @@ import ray
 from horovod.ray import RayExecutor
 import horovod.tensorflow.keras as hvd
 import training_function
-from training_function.train_function import ClasseTeste
 
 address = f'{os.environ["NODE_IP_ADDRESS"]}:{os.environ["HOST_PORT"]}'
 runtime_env = {"py_modules": [training_function], "pip": "./requirements.txt"}
