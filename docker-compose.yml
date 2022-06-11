@@ -347,8 +347,6 @@ services:
       - ray_net
   ray-worker:
     image: camazaqui/ray-horovod:latest
-    ports:
-      - "8008:8008"
     depends_on:
       - ray-head
     env_file:
