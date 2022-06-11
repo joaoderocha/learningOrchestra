@@ -275,7 +275,7 @@ def create_builder_horovod() -> jsonify:
         code,
         monitoring_path
     )
-    print('criei executor')
+    print('criei executor', flush=True)
     train_model.build(filename,
                       code, monitoring_path, method_parameters, description)
 

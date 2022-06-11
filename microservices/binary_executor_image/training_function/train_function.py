@@ -62,7 +62,7 @@ class ExecutionBackground:
         self.monitoring_path = kwargs['monitoring_path']
         if self.monitoring_path is not '' and hvd.rank() == 0:
             self.monitoring_process = Popen(
-                ['nohup', 'tensorboard', '--logdir', f'{self.monitoring_path}', '--port', '9500', '--bind_all'],
+                ['nohup', 'tensorboard', '--logdir', f'{self.monitoring_path}', '--bind_all'],
                 stdout=PIPE, stderr=STDOUT)
         self.training_parameters = dict({
             **kwargs['training_parameters'],
