@@ -60,7 +60,7 @@ class ExecutionBackground:
         self.model_name = kwargs['model_name']
         self.callbacks = kwargs['callbacks'] + kwargs['rank0callbacks'] if hvd.rank() == 0 else kwargs['callbacks']
         self.monitoring_path = kwargs['monitoring_path']
-        if self.monitoring_path is not '':
+        if self.monitoring_path is not '' and hvd.rank() == 0:
             self.monitoring_process = Popen(
                 ['nohup', 'tensorboard', '--logdir', f'{self.monitoring_path}', '--port', '9500', '--bind_all'],
                 stdout=PIPE, stderr=STDOUT)
