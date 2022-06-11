@@ -333,7 +333,7 @@ services:
       - "10001:10001"
     env_file:
       - .env
-    command: bash -c "ray start --head --dashboard-port=8265 --port=6379 --dashboard-host=0.0.0.0 --redis-password=passwd --block"
+    command: bash -c "ray start --head --dashboard-port=8265 --port=6379 --dashboard-host=0.0.0.0 --redis-password=passwd --num-cpus=0 --block"
     shm_size: 2g
     deploy:
       mode: global
@@ -354,7 +354,7 @@ services:
       - ray-head
     env_file:
       - .env
-    command: bash -c "ray start --address=ray-head:6379 --redis-password=passwd --num-cpus=2 --block"
+    command: bash -c "ray start --address=ray-head:6379 --redis-password=passwd --num-cpus=4 --block"
     shm_size: 2g
     deploy:
       mode: global
