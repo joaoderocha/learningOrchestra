@@ -363,8 +363,8 @@ services:
           - "node.role==worker"
       resources:
         limits:
-          cpus: '2'
-          memory: '2g'
+          cpus: '4'
+          memory: '4g'
     networks:
       - ray_net
 
