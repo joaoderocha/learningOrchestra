@@ -2,7 +2,6 @@ from subprocess import Popen, PIPE, STDOUT
 from typing import Tuple
 from datetime import datetime
 import tensorflow
-import numpy
 import requests
 
 
@@ -62,12 +61,11 @@ class ExecutionBackground:
         self.callbacks = kwargs['callbacks'] + kwargs['rank0callbacks'] if hvd.rank() == 0 else kwargs['callbacks']
         self.monitoring_path = kwargs['monitoring_path']
         if self.monitoring_path is not '':
-            self.monitoring_process = Popen(['tensorboard', '--logdir', f'{self.monitoring_path}', '--bind_all'],
-                                            stdout=PIPE, stderr=STDOUT)
+            self.monitoring_process = Popen(
+                ['tensorboard', '--logdir', f'{self.monitoring_path}', '--port', '8008', '--bind_all'],
+                stdout=PIPE, stderr=STDOUT)
         self.training_parameters = dict({
             **kwargs['training_parameters'],
-            'x': numpy.fromstring(kwargs['x']),
-            'y': numpy.fromstring(kwargs['y']),
             'callbacks': self.instanceTreatment.treat(self.callbacks)
         })
         self.compile_code = kwargs['compile_code']
