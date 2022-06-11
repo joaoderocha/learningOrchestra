@@ -157,6 +157,7 @@ class Execution:
                    method_parameters: dict,
                    description: str) -> None:
         try:
+            print('rodando single')
             importlib.import_module(module_path)
             model_instance = self.__storage.read(self.parent_name,
                                                  self.parent_name_service_type)
@@ -212,11 +213,11 @@ class DistributedExecution(Execution):
         self.compile_code = compile_code
         self.monitoring_path = monitoring_path
 
-    def create(self,
-               module_path: str,
-               class_name: str,
-               method_parameters: dict,
-               description: str) -> None:
+    def start(self,
+              module_path: str,
+              class_name: str,
+              method_parameters: dict,
+              description: str) -> None:
         self.__metadata_creator.create_file(self.parent_name,
                                             self.executor_name,
                                             module_path,
@@ -234,6 +235,7 @@ class DistributedExecution(Execution):
                    method_parameters: dict,
                    description: str) -> None:
         try:
+            print('rodando distribuido')
             importlib.import_module(module_path)
             rank0callbacks = method_parameters['rank0callbacks']
             del method_parameters['rank0callbacks']

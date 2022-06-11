@@ -17,7 +17,7 @@ ray.init(address=address, runtime_env=runtime_env)
 
 hvd.init()
 
-settings = RayExecutor.create_settings(timeout_s=360, placement_group_timeout_s=360)
+settings = RayExecutor.create_settings(timeout_s=600, placement_group_timeout_s=600)
 executor = RayExecutor(settings, num_workers_per_host=1, num_hosts=2, use_gpu=False, cpus_per_worker=2)
 executor.start(executable_cls=ClasseTeste)
 
@@ -40,7 +40,7 @@ process_controller = ProcessController()
 @app.route(Constants.MICROSERVICE_URI_PATH, methods=["POST"])
 def create_execution() -> jsonify:
     service_type = request.args.get(Constants.TYPE_FIELD_NAME)
-
+    print('rodando single')
     model_name = request.json[Constants.MODEL_NAME_FIELD_NAME]
     parent_name = request.json[Constants.PARENT_NAME_FIELD_NAME]
     filename = request.json[Constants.NAME_FIELD_NAME]
@@ -239,7 +239,7 @@ def create_distributed_execution() -> jsonify:
 
     module_path, class_name = data.get_module_and_class_from_a_instance(
         model_name)
-    train_model.create(
+    train_model.start(
         module_path, class_name, method_parameters, description)
 
     return (
