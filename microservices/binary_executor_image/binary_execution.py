@@ -208,7 +208,11 @@ class DistributedExecution(Execution):
                  monitoring_path: str = ''):
         super().__init__(database_connector, executor_name, executor_service_type, parent_name,
                          parent_name_service_type, metadata_creator, class_method, parameters_handler, storage)
-
+        self.__metadata_creator = metadata_creator
+        self.__thread_pool = ThreadPoolExecutor()
+        self.__database_connector = database_connector
+        self.__storage = storage
+        self.__parameters_handler = parameters_handler
         self.distributed_executor = ray_executor
         self.compile_code = compile_code
         self.monitoring_path = monitoring_path
@@ -293,6 +297,11 @@ class DistributedBuilderExecution(Execution):
                  monitoring_path: str = ''):
         super().__init__(database_connector, executor_name, executor_service_type, '',
                          '', metadata_creator, '', parameters_handler, storage)
+        self.__metadata_creator = metadata_creator
+        self.__thread_pool = ThreadPoolExecutor()
+        self.__database_connector = database_connector
+        self.__storage = storage
+        self.__parameters_handler = parameters_handler
         self.distributed_executor = ray_executor
         self.code = code
         self.monitoring_path = monitoring_path
