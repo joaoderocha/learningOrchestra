@@ -9,6 +9,7 @@ import ray
 from horovod.ray import RayExecutor
 import horovod.tensorflow.keras as hvd
 import training_function
+from training_function.train_function import ClasseTeste
 
 address = f'{os.environ["NODE_IP_ADDRESS"]}:{os.environ["HOST_PORT"]}'
 runtime_env = {"py_modules": [training_function], "pip": "./requirements.txt"}
@@ -18,6 +19,7 @@ hvd.init()
 
 settings = RayExecutor.create_settings(timeout_s=360, placement_group_timeout_s=360)
 executor = RayExecutor(settings, num_workers_per_host=1, num_hosts=2, use_gpu=False, cpus_per_worker=2)
+executor.start(executable_cls=ClasseTeste)
 
 app = Flask(__name__)
 
@@ -275,7 +277,7 @@ def create_builder_horovod() -> jsonify:
         code,
         monitoring_path
     )
-    print('criei executor')
+    print('criei executor', flush=True)
     train_model.build(filename,
                       code, monitoring_path, method_parameters, description)
 

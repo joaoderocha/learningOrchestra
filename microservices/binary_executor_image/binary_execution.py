@@ -217,7 +217,6 @@ class DistributedExecution(Execution):
                    method_parameters: dict,
                    description: str) -> None:
         try:
-            self.distributed_executor.start()
             importlib.import_module(module_path)
             model_instance = self.__storage.read(self.parent_name,
                                                  self.parent_name_service_type)
@@ -229,7 +228,8 @@ class DistributedExecution(Execution):
             rank0callbacks = method_parameters['rank0callbacks']
             del treated_parameters['callbacks']
             del treated_parameters['rank0callbacks']
-
+            a = self.distributed_executor.execute(lambda worker: worker.rank())
+            print('ranks', a, flush=True)
             kwargs = dict({
                 'model': model_definition,
                 'model_name': self.parent_name,
@@ -248,7 +248,7 @@ class DistributedExecution(Execution):
                                 self.executor_service_type)
             self.__metadata_creator.update_finished_flag(self.executor_name,
                                                          flag=True)
-            self.distributed_executor.shutdown()
+
         except Exception as exception:
             traceback.print_exc()
             self.__metadata_creator.create_execution_document(
@@ -256,7 +256,7 @@ class DistributedExecution(Execution):
                 description,
                 method_parameters,
                 repr(exception))
-            self.distributed_executor.shutdown()
+
             return None
 
         self.__metadata_creator.create_execution_document(self.executor_name,
@@ -282,11 +282,12 @@ class DistributedBuilderExecution(Execution):
               monitoring_path: str,
               method_parameters: dict,
               description: str) -> None:
+        print('tentei acessa banco')
         self.__database_connector.insert_one_in_file(
             name,
             dict({'code': code, 'monitoring_path': monitoring_path, 'description': description})
         )
-
+        print('startando thread')
         self.__thread_pool.submit(self.__pipeline,
                                   code,
                                   method_parameters,
@@ -296,8 +297,6 @@ class DistributedBuilderExecution(Execution):
                    code: str,
                    method_parameters: dict,
                    description: str) -> None:
-        self.distributed_executor.start()
-
         tree = ast.parse(code)
 
         if len(tree.body) != 1 or not isinstance(tree.body[0], ast.FunctionDef):
