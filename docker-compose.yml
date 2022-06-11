@@ -354,7 +354,7 @@ services:
       - ray-head
     env_file:
       - .env
-    command: bash -c "ray start --address=ray-head:6379 --redis-password=passwd --num-cpus=4 --block"
+    command: bash -c "ray start --address=ray-head:6379 --redis-password=passwd --num-cpus=2 --block"
     shm_size: 2g
     deploy:
       mode: global
@@ -363,8 +363,8 @@ services:
           - "node.role==worker"
       resources:
         limits:
-          cpus: '3'
-          memory: '4g'
+          cpus: '2'
+          memory: '2g'
     networks:
       - ray_net
 
