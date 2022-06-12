@@ -292,6 +292,7 @@ services:
     deploy: *default-deploy-manager
     networks:
       - database
+      - ray_net
     environment:
       - DATABASE_URL=mongodb://root:owl45#21@databaseprimary,databasesecondary
       - DATABASE_PORT=27017
