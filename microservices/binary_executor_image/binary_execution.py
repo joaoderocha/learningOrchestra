@@ -329,6 +329,7 @@ class DistributedBuilderExecution(Execution):
                    code: str,
                    method_parameters: dict,
                    description: str) -> None:
+        self.distributed_executor.start()
         tree = ast.parse(code)
 
         if len(tree.body) != 1 or not isinstance(tree.body[0], ast.FunctionDef):
