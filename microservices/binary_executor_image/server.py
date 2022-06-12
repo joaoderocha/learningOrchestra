@@ -13,11 +13,8 @@ import training_function
 address = f'{os.environ["NODE_IP_ADDRESS"]}:{os.environ["HOST_PORT"]}'
 runtime_env = {"py_modules": [training_function], "pip": "./requirements.txt"}
 ray.init(address=address, runtime_env=runtime_env)
-
-hvd.init()
-
 settings = RayExecutor.create_settings(timeout_s=60, placement_group_timeout_s=60)
-executor = RayExecutor(settings, num_workers_per_host=1, num_hosts=2, use_gpu=False, cpus_per_worker=1)
+executor = RayExecutor(settings, use_gpu=False, cpus_per_worker=2)
 print('Starting ray cluster...', flush=True)
 executor.start()
 
