@@ -3,7 +3,6 @@ FROM horovod/horovod-ray:0.24.3
 WORKDIR /usr/src/binary_executor
 COPY . /usr/src/binary_executor
 
-
 RUN pip install -r requirements.txt
 
 ENV MICROSERVICE_IP "0.0.0.0"
@@ -13,4 +12,4 @@ ENV MODELS_VOLUME_PATH "/models"
 ENV TRANSFORM_VOLUME_PATH "/transform"
 ENV CODE_EXECUTOR_VOLUME_PATH "/code_executions"
 
-CMD ["python", "server.py"]
+CMD ["./start.sh"]

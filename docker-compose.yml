@@ -283,12 +283,12 @@ services:
     image: 127.0.0.1:5050/binary_executor
     ports:
       - "5008:5008"
-      - "6000-6370:6000-6370"
-      - "6381-7000:6381-7000"
+      - "6000-7000:6000-7000"
+      - "8265:8265"
+      - "10001:10001"
     depends_on:
       - databaseprimary
       - images
-      - ray-head
     deploy: *default-deploy-manager
     networks:
       - database
@@ -326,31 +326,31 @@ services:
       - database
     environment: *default-service-database-env
 
-  ray-head:
-    image: horovod/horovod-ray:0.24.3
-    ports:
-      - "6379:6379"
-      - "8265:8265"
-      - "10001:10001"
-    command: bash -c "ray start --head --dashboard-port=8265 --port=6379 --dashboard-host=0.0.0.0 --redis-password=passwd --block"
-    shm_size: 2g
-    deploy:
-      placement:
-        constraints:
-          - "node.role==manager"
-      resources:
-        limits:
-          cpus: '1'
-          memory: '2g'
-    networks:
-      - ray_net
+  #  ray-head:
+  #    image: horovod/horovod-ray:0.24.3
+  #    ports:
+  #      - "6379:6379"
+  #      - "8265:8265"
+  #      - "10001:10001"
+  #    command: bash -c "ray start --head --dashboard-port=8265 --port=6379 --dashboard-host=0.0.0.0 --redis-password=passwd --block"
+  #    shm_size: 2g
+  #    deploy:
+  #      placement:
+  #        constraints:
+  #          - "node.role==manager"
+  #      resources:
+  #        limits:
+  #          cpus: '1'
+  #          memory: '2g'
+  #    networks:
+  #      - ray_net
   ray-worker:
     image: horovod/horovod-ray:0.24.3
     ports:
       - "9500:9500"
     depends_on:
-      - ray-head
-    command: bash -c "ray start --address=ray-head:6379 --redis-password=passwd --num-cpus=2 --block"
+      - binaryexecutor
+    command: bash -c "ray start --address=binaryexecutor:6379 --redis-password=passwd --num-cpus=2 --block"
     shm_size: 4g
     deploy:
       replicas: 2
