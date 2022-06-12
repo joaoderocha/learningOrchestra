@@ -3,9 +3,12 @@ FROM horovod/horovod-ray:0.24.3
 WORKDIR /usr/src/binary_executor
 COPY . /usr/src/binary_executor
 
+RUN sudo apt-get update
+
+
 RUN pip install -r requirements.txt
 
-RUN pip install supervisor -y
+RUN sudo pip install -y supervisor
 
 RUN mkdir -p /var/log/supervisor
 
