@@ -285,6 +285,7 @@ services:
       - "5008:5008"
       - "6000-6370:6000-6370"
       - "6381-7000:6381-7000"
+      - "10001:10001"
     depends_on:
       - databaseprimary
       - images
@@ -325,6 +326,7 @@ services:
     networks:
       - database
     environment: *default-service-database-env
+
   ray-head:
     image: horovod/horovod-ray:0.24.3
     ports:
