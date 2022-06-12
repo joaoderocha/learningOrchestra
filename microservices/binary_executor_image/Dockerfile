@@ -3,7 +3,7 @@ FROM horovod/horovod-ray:0.24.3
 WORKDIR /usr/src/binary_executor
 COPY . /usr/src/binary_executor
 
-RUN sudo apt-get update
+RUN apt-get update --allow-unauthenticated && apt-get install -y supervisor
 
 
 RUN pip install -r requirements.txt
