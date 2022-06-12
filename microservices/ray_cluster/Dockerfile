@@ -1,4 +1,4 @@
-FROM rayproject/1.5.1-py37-cpu
+FROM rayproject/ray:1.5.1-py37-cpu
 
 RUN sudo apt-get update && sudo apt-get install -y wget
 
