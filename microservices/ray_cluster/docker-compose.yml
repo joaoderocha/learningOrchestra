@@ -7,7 +7,7 @@ services:
       - "6379:6379"
       - "8265:8265"
       - "10001:10001"
-    command: bash -c "--ulimit nofile=65536:65536 ray start --head --dashboard-port=8265 --port=6379 --dashboard-host=0.0.0.0 --redis-password=passwd --block"
+    command: bash -c "ray start --head --dashboard-port=8265 --port=6379 --dashboard-host=0.0.0.0 --redis-password=passwd --block"
     shm_size: 2g
     deploy:
       placement:
@@ -25,7 +25,7 @@ services:
       - "9500:9500"
     depends_on:
       - ray-head
-    command: bash -c "--ulimit nofile=65536:65536 ray start --address=ray-head:6379 --redis-password=passwd --num-cpus=2 --block"
+    command: bash -c "ray start --address=ray-head:6379 --redis-password=passwd --num-cpus=2 --block"
     shm_size: 2g
     deploy:
       replicas: 2
