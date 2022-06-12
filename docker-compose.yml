@@ -366,7 +366,7 @@ networks:
   database:
   spark:
   portainer:
-  ray-net:
+  ray_net:
 
 volumes:
   images:
