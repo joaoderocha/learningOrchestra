@@ -239,7 +239,9 @@ class DistributedExecution(Execution):
                    method_parameters: dict,
                    description: str) -> None:
         try:
-            print('rodando distribuido')
+            print('rodando distribuido', flush=True)
+            print('startando', flush=True)
+            self.distributed_executor.start()
             importlib.import_module(module_path)
             rank0callbacks = method_parameters['rank0callbacks']
             del method_parameters['rank0callbacks']
