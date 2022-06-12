@@ -63,6 +63,10 @@ class Constants:
     EXPLORE_TENSORFLOW_TYPE = "explore/tensorflow"
 
     MONITORING_TENSORFLOW_TYPE = "monitoring/tensorflow"
+    BUILDER_HOROVOD_TYPE = "builder/horovod"
+
+    TRAIN_HOROVOD_TYPE = "train/horovod"
+
     COMPILATION_FIELD_NAME = "compile_code"
     CODE_FIELD_NAME = "code"
 
@@ -78,6 +82,8 @@ class Constants:
         PREDICT_SCIKITLEARN_TYPE: f'{API_PATH}{PREDICT_SCIKITLEARN_TYPE}',
         PREDICT_TENSORFLOW_TYPE: f'{API_PATH}{PREDICT_TENSORFLOW_TYPE}',
         MONITORING_TENSORFLOW_TYPE: f'{API_PATH}{MONITORING_TENSORFLOW_TYPE}',
+        BUILDER_HOROVOD_TYPE: f'{API_PATH}{BUILDER_HOROVOD_TYPE}',
+        TRAIN_HOROVOD_TYPE: f'{API_PATH}{TRAIN_HOROVOD_TYPE}',
     }
 
     MICROSERVICE_URI_PATH = "/binaryExecutor"
