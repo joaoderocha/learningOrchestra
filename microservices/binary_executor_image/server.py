@@ -13,8 +13,8 @@ import training_function
 address = f'{os.environ["NODE_IP_ADDRESS"]}:{os.environ["HOST_PORT"]}'
 runtime_env = {"py_modules": [training_function], "pip": "./requirements.txt"}
 ray.init(address=address, runtime_env=runtime_env)
-settings = RayExecutor.create_settings(timeout_s=60, placement_group_timeout_s=60)
-executor = RayExecutor(settings, use_gpu=False, cpus_per_worker=2, num_workers=2)
+settings = RayExecutor.create_settings(timeout_s=120, placement_group_timeout_s=120)
+executor = RayExecutor(settings, use_gpu=False, cpus_per_worker=2, num_workers=1)
 
 app = Flask(__name__)
 
