@@ -286,6 +286,7 @@ services:
       - "6000-7000:6000-7000"
       - "8265:8265"
       - "10001:10001"
+      - "8000:8000"
     depends_on:
       - databaseprimary
       - images
@@ -350,7 +351,7 @@ services:
       - "9500:9500"
     depends_on:
       - binaryexecutor
-    command: bash -c "ray start --address=binaryexecutor:6379 --redis-password=passwd --num-cpus=2 --block"
+    command: bash -c "ulimit -n 65536; ray start --address=binaryexecutor:6379 --redis-password=passwd --num-cpus=2 --block"
     shm_size: 4g
     deploy:
       replicas: 2
