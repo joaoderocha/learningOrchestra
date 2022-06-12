@@ -14,4 +14,4 @@ ENV MODELS_VOLUME_PATH "/models"
 ENV TRANSFORM_VOLUME_PATH "/transform"
 ENV CODE_EXECUTOR_VOLUME_PATH "/code_executions"
 
-CMD ["sudo","supervisord"]
+CMD supervisord
