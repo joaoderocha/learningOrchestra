@@ -14,9 +14,7 @@ address = f'{os.environ["NODE_IP_ADDRESS"]}:{os.environ["HOST_PORT"]}'
 runtime_env = {"py_modules": [training_function], "pip": "./requirements.txt"}
 ray.init(address=address, runtime_env=runtime_env)
 settings = RayExecutor.create_settings(timeout_s=60, placement_group_timeout_s=60)
-executor = RayExecutor(settings, use_gpu=False, cpus_per_worker=2)
-print('Starting ray cluster...', flush=True)
-executor.start()
+executor = RayExecutor(settings, use_gpu=False, cpus_per_worker=2, num_workers=2)
 
 app = Flask(__name__)
 
@@ -436,7 +434,10 @@ def analyse_patch_request_errors(request_validator: UserRequest,
 
 
 if __name__ == "__main__":
+    print('flask', flush=True)
     app.run(
         host=os.environ["MICROSERVICE_IP"],
         port=int(os.environ["MICROSERVICE_PORT"])
     )
+    print('Starting ray cluster...', flush=True)
+    executor.start()

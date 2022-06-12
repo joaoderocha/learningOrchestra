@@ -332,7 +332,7 @@ services:
       - "6379:6379"
       - "8265:8265"
       - "10001:10001"
-    command: bash -c "ray start --head --dashboard-port=8265 --port=6379 --dashboard-host=0.0.0.0 --redis-password=passwd --block "
+    command: bash -c "ray start --head --dashboard-port=8265 --port=6379 --dashboard-host=0.0.0.0 --redis-password=passwd --block"
     shm_size: 2g
     deploy:
       placement:
