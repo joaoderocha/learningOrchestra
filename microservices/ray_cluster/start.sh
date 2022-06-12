@@ -1,4 +1,4 @@
 #!/bin/bash
 
-docker stack deploy --compose-file=docker-compose.yml raycluster
+docker stack deploy --compose-file=microservice/ray_cluster/docker-compose.yml raycluster
 
