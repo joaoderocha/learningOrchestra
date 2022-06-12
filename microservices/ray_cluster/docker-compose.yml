@@ -7,8 +7,6 @@ services:
       - "6379:6379"
       - "8265:8265"
       - "10001:10001"
-    env_file:
-      - .env
     command: bash -c "ray start --head --dashboard-port=8265 --port=6379 --dashboard-host=0.0.0.0 --redis-password=passwd --block"
     shm_size: 2g
     deploy:
@@ -27,8 +25,6 @@ services:
       - "9500:9500"
     depends_on:
       - ray-head
-    env_file:
-      - .env
     command: bash -c "ray start --address=ray-head:6379 --redis-password=passwd --num-cpus=2 --block"
     shm_size: 2g
     deploy:
@@ -43,5 +39,5 @@ services:
     networks:
       - ray_net
 
-volumes:
+networks:
   ray_net:
