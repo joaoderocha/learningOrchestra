@@ -16,6 +16,8 @@ ray.init(address=address, runtime_env=runtime_env)
 settings = RayExecutor.create_settings(timeout_s=60, placement_group_timeout_s=60)
 executor = RayExecutor(settings, use_gpu=False, cpus_per_worker=2, num_workers=2)
 
+
+
 app = Flask(__name__)
 
 database = Database(
@@ -31,6 +33,8 @@ metadata_creator = Metadata(database)
 parameters_handler = Parameters(database, data)
 process_controller = ProcessController()
 
+print('Starting ray cluster...', flush=True)
+executor.start()
 
 @app.route(Constants.MICROSERVICE_URI_PATH, methods=["POST"])
 def create_execution() -> jsonify:
@@ -435,10 +439,8 @@ def analyse_patch_request_errors(request_validator: UserRequest,
 
 if __name__ == "__main__":
     print('flask', flush=True)
-    print('Starting ray cluster...', flush=True)
-    executor.start()
+
     app.run(
         host=os.environ["MICROSERVICE_IP"],
         port=int(os.environ["MICROSERVICE_PORT"])
     )
-
