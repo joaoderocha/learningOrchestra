@@ -255,11 +255,12 @@ def create_builder_horovod() -> jsonify:
     service_type = request.args.get(Constants.TYPE_FIELD_NAME)
     filename = request.json[Constants.NAME_FIELD_NAME]
     description = request.json[Constants.DESCRIPTION_FIELD_NAME]
-    method_parameters = request.json[Constants.METHOD_PARAMETERS_FIELD_NAME]
+    method_parameters = {}
     code = request.json[Constants.CODE_FIELD_NAME]
     monitoring_path = ''
     try:
         monitoring_path = request.json[Constants.MONITORING_PATH_FIELD_NAME]
+        method_parameters = request.json[Constants.METHOD_PARAMETERS_FIELD_NAME]
     except Exception:
         pass
     print(service_type, filename, description, method_parameters, code, monitoring_path, flush=True)
