@@ -351,7 +351,7 @@ services:
     depends_on:
       - ray-head
     command: bash -c "ray start --address=ray-head:6379 --redis-password=passwd --num-cpus=2 --block"
-    shm_size: 2g
+    shm_size: 4g
     deploy:
       replicas: 2
       placement:
@@ -360,7 +360,7 @@ services:
       resources:
         limits:
           cpus: '2'
-          memory: '2g'
+          memory: '4g'
     networks:
       - ray_net
 
