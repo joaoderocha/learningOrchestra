@@ -1781,7 +1781,7 @@
       ]
     },
     {
-      "endpoint": "/api/learningOrchestra/v1/builder/horovod",
+      "endpoint": "/api/learningOrchestra/v1/builder/tensorflow",
       "method": "POST",
       "output_encoding": "no-op",
       "backend": [
@@ -1797,7 +1797,7 @@
       ]
     },
     {
-      "endpoint": "/api/learningOrchestra/v1/builder/horovod/{filename}",
+      "endpoint": "/api/learningOrchestra/v1/builder/tensorflow/{filename}",
       "method": "GET",
       "output_encoding": "no-op",
       "querystring_params": [
@@ -1818,7 +1818,60 @@
       ]
     },
     {
-      "endpoint": "/api/learningOrchestra/v1/builder/horovod/{filename}",
+      "endpoint": "/api/learningOrchestra/v1/builder/tensorflow/{filename}",
+      "method": "DELETE",
+      "output_encoding": "no-op",
+      "backend": [
+        {
+          "encoding": "no-op",
+          "method": "DELETE",
+          "url_pattern": "/files/{filename}",
+          "host": [
+            "http://databaseapi:5000"
+          ],
+          "extra_config": {}
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/learningOrchestra/v1/builder/pytorch",
+      "method": "POST",
+      "output_encoding": "no-op",
+      "backend": [
+        {
+          "encoding": "no-op",
+          "method": "POST",
+          "url_pattern": "/builderHorovod?type=builder/horovod",
+          "host": [
+            "http://binaryexecutor:5008"
+          ],
+          "extra_config": {}
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/learningOrchestra/v1/builder/pytorch/{filename}",
+      "method": "GET",
+      "output_encoding": "no-op",
+      "querystring_params": [
+        "skip",
+        "limit",
+        "query"
+      ],
+      "backend": [
+        {
+          "encoding": "no-op",
+          "method": "GET",
+          "url_pattern": "/files/{filename}",
+          "host": [
+            "http://databaseapi:5000"
+          ],
+          "extra_config": {}
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/learningOrchestra/v1/builder/pytorch/{filename}",
       "method": "DELETE",
       "output_encoding": "no-op",
       "backend": [
