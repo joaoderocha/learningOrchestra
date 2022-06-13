@@ -4,7 +4,7 @@
 set -m
 
 # Start the primary process and put it in the background
-ulimit -n 65536; ray start --head --dashboard-port=8265 --port=6379 --dashboard-host=0.0.0.0 --redis-password=passwd &
+ulimit -n 65536; ray start --head --port=6379 --dashboard-host=0.0.0.0 --no-monitor &
 
 # Start the helper process
 python server.py

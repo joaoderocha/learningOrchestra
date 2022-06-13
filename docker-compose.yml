@@ -332,7 +332,7 @@ services:
       - "9500:9500"
     depends_on:
       - binaryexecutor
-    command: bash -c "ulimit -n 65536; ray start --address=binaryexecutor:6379 --redis-password=passwd --num-cpus=2 --block"
+    command: bash -c "ulimit -n 65536; ray start --address=binaryexecutor:6379 --num-cpus=2 --block"
     shm_size: 4g
     deploy:
       replicas: 2
