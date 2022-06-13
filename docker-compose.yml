@@ -117,7 +117,6 @@ services:
     command: -H tcp://tasks.agent:9001 --tlsskipverify
     ports:
       - "9000:9000"
-      - "8000:8000"
     volumes:
       - portainer:/data
     networks:
@@ -284,16 +283,23 @@ services:
     ports:
       - "5008:5008"
       - "6000-7000:6000-7000"
+      - "8265:8265"
+      - "10001:10001"
+      - "8000:8000"
     depends_on:
       - databaseprimary
       - images
     deploy: *default-deploy-manager
     networks:
       - database
+      - ray_net
     environment:
-      - <<*default-service-database-env
-      - NODE_IP_ADDRESS=distributedtraining
-      - HOST_PORT=6379
+      - DATABASE_URL=mongodb://root:owl45#21@databaseprimary,databasesecondary
+      - DATABASE_PORT=27017
+      - DATABASE_REPLICA_SET=replica_set
+      - DATABASE_NAME=database
+      - NODE_IP_ADDRESS=ray://ray-head
+      - HOST_PORT=10001
     volumes:
       - "model:/models"
       - "binary_executor:/binaries"
@@ -320,88 +326,31 @@ services:
       - database
     environment: *default-service-database-env
 
-#  distributedtraining:
-#    build: microservices/distributed_training_image
-#    image: 127.0.0.1:5050/distributed_training
-#    ports:
-#      - target: 5010
-#        published: 5010
-#      - target: 6379
-#        published: 6379
-#        protocol: tcp
-#        mode: host
-#      - target: 8265
-#        published: 8265
-#      - target: 4501
-#        published: 4501
-#        protocol: tcp
-#        mode: host
-#      - target: 4502
-#        published: 4502
-#        protocol: tcp
-#        mode: host
-#      - target: 10001
-#        published: 10001
-#    depends_on:
-#      - databaseprimary
-#      - images
-#    deploy: *default-deploy-manager
-#    networks:
-#      - database
-#      - ray
-#    environment:
-#      - HOST_PORT=6379
-#      - OBJECT_MANAGER_PORT=4501
-#      - NODE_MANAGER_PORT=4502
-#      - NODE_IP_ADDRESS=distributedtraining
-#      - DASHBOARD_PORT=8265
-#      - DATABASE_URL=mongodb://root:owl45#21@databaseprimary,databasesecondary
-#      - DATABASE_PORT=27017
-#      - DATABASE_REPLICA_SET=replica_set
-#      - DATABASE_NAME=database
-#    volumes:
-#      - "model:/models"
-#      - "binary_executor:/binaries"
-#      - "database_executor:/transform"
-#      - "code_executor:/code_executions"
-#
-#  rayworker:
-#    build: microservices/ray_worker_image
-#    image: camazaqui/ray-worker:latest
-#    ports:
-#      - target: 4501
-#        published: 4501
-#        protocol: tcp
-#        mode: host
-#      - target: 4502
-#        published: 4502
-#        protocol: tcp
-#        mode: host
-#    depends_on:
-#      - distributedtraining
-#      - images
-#    networks:
-#      - database
-#      - ray
-#    environment:
-#      - RAY_HEAD=distributedtraining
-#      - HOST_PORT=6379
-#      - OBJECT_MANAGER_PORT=4501
-#      - NODE_MANAGER_PORT=4502
-#    deploy:
-#      mode: global
-#      placement:
-#        constraints:
-#          - "node.role==worker"
-#    links:
-#      - distributedtraining
-#    command: dockerize -wait tcp://distributedtraining:6379 -timeout 240s ./start.sh
+  ray-worker:
+    image: horovod/horovod-ray:0.24.3
+    ports:
+      - "9500:9500"
+    depends_on:
+      - binaryexecutor
+    command: bash -c "ulimit -n 65536; ray start --address=binaryexecutor:6379 --num-cpus=2 --block"
+    shm_size: 4g
+    deploy:
+      replicas: 2
+      placement:
+        constraints:
+          - "node.role==worker"
+      resources:
+        limits:
+          cpus: '2'
+          memory: '4g'
+    networks:
+      - ray_net
 
 networks:
   database:
   spark:
   portainer:
-#  ray:
+  ray_net:
 
 volumes:
   images:

@@ -7,7 +7,7 @@ from constants import Constants
 from horovod.ray import RayExecutor
 import tensorflow
 import traceback
-from training_function.train_function import train
+from training_function.train_function import train, get_rank
 
 
 class Parameters:
@@ -29,8 +29,10 @@ class Parameters:
                 for item in value:
                     new_value.append(self.__treat_value(item))
                 parameters[name] = new_value
+                print('parameter:', name, 'type: ', type(parameters[name]), flush=True)
             else:
                 parameters[name] = self.__treat_value(value)
+                print('parameter:', name, 'type: ', type(parameters[name]), flush=True)
 
         return parameters
 
@@ -155,6 +157,7 @@ class Execution:
                    method_parameters: dict,
                    description: str) -> None:
         try:
+            print('rodando single')
             importlib.import_module(module_path)
             model_instance = self.__storage.read(self.parent_name,
                                                  self.parent_name_service_type)
@@ -205,18 +208,43 @@ class DistributedExecution(Execution):
                  monitoring_path: str = ''):
         super().__init__(database_connector, executor_name, executor_service_type, parent_name,
                          parent_name_service_type, metadata_creator, class_method, parameters_handler, storage)
-
+        self.__metadata_creator = metadata_creator
+        self.__thread_pool = ThreadPoolExecutor()
+        self.__database_connector = database_connector
+        self.__storage = storage
+        self.__parameters_handler = parameters_handler
         self.distributed_executor = ray_executor
         self.compile_code = compile_code
         self.monitoring_path = monitoring_path
+
+    def start(self,
+              module_path: str,
+              class_name: str,
+              method_parameters: dict,
+              description: str) -> None:
+        self.__metadata_creator.create_file(self.parent_name,
+                                            self.executor_name,
+                                            module_path,
+                                            class_name,
+                                            self.class_method,
+                                            self.executor_service_type)
+
+        self.__thread_pool.submit(self.__pipeline,
+                                  module_path,
+                                  method_parameters,
+                                  description)
 
     def __pipeline(self,
                    module_path: str,
                    method_parameters: dict,
                    description: str) -> None:
         try:
+            print('rodando distribuido', flush=True)
+            print('startando', flush=True)
             self.distributed_executor.start()
             importlib.import_module(module_path)
+            rank0callbacks = method_parameters['rank0callbacks']
+            del method_parameters['rank0callbacks']
             model_instance = self.__storage.read(self.parent_name,
                                                  self.parent_name_service_type)
 
@@ -224,9 +252,10 @@ class DistributedExecution(Execution):
             treated_parameters = self.__parameters_handler.treat(method_parameters)
 
             callbacks = method_parameters['callbacks']
-            rank0callbacks = method_parameters['rank0callbacks']
             del treated_parameters['callbacks']
-            del treated_parameters['rank0callbacks']
+
+            a = self.distributed_executor.run(get_rank)
+            print('ranks', a, flush=True)
 
             kwargs = dict({
                 'model': model_definition,
@@ -246,6 +275,7 @@ class DistributedExecution(Execution):
                                 self.executor_service_type)
             self.__metadata_creator.update_finished_flag(self.executor_name,
                                                          flag=True)
+
         except Exception as exception:
             traceback.print_exc()
             self.__metadata_creator.create_execution_document(
@@ -253,6 +283,7 @@ class DistributedExecution(Execution):
                 description,
                 method_parameters,
                 repr(exception))
+
             return None
 
         self.__metadata_creator.create_execution_document(self.executor_name,
@@ -268,6 +299,11 @@ class DistributedBuilderExecution(Execution):
                  monitoring_path: str = ''):
         super().__init__(database_connector, executor_name, executor_service_type, '',
                          '', metadata_creator, '', parameters_handler, storage)
+        self.__metadata_creator = metadata_creator
+        self.__thread_pool = ThreadPoolExecutor()
+        self.__database_connector = database_connector
+        self.__storage = storage
+        self.__parameters_handler = parameters_handler
         self.distributed_executor = ray_executor
         self.code = code
         self.monitoring_path = monitoring_path
@@ -278,11 +314,12 @@ class DistributedBuilderExecution(Execution):
               monitoring_path: str,
               method_parameters: dict,
               description: str) -> None:
+        print('tentei acessa banco')
         self.__database_connector.insert_one_in_file(
             name,
             dict({'code': code, 'monitoring_path': monitoring_path, 'description': description})
         )
-
+        print('startando thread')
         self.__thread_pool.submit(self.__pipeline,
                                   code,
                                   method_parameters,
@@ -293,7 +330,6 @@ class DistributedBuilderExecution(Execution):
                    method_parameters: dict,
                    description: str) -> None:
         self.distributed_executor.start()
-
         tree = ast.parse(code)
 
         if len(tree.body) != 1 or not isinstance(tree.body[0], ast.FunctionDef):
